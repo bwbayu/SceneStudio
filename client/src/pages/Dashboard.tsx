@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import StoryCard from '../components/StoryCard';
 import EditStoryModal from '../components/EditStoryModal';
-import { BookIcon, PlayIcon, GlobeIcon, StarIcon, PlusIcon, GridIcon, ListIcon } from '../components/Icons';
+import { BookIcon, GlobeIcon, StarIcon, PlusIcon, GridIcon, ListIcon } from '../components/Icons';
 
 // Stats definitions
 const STATS_CONFIG = [
@@ -33,9 +33,10 @@ interface DashboardProps {
   }[];
   setStories: (stories: any[]) => void;
   onCreateStory: () => void;
+  onSelectStory: (id: string) => void;
 }
 
-export default function Dashboard({ stories, setStories, onCreateStory }: DashboardProps) {
+export default function Dashboard({ stories, setStories, onCreateStory, onSelectStory }: DashboardProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [editingStory, setEditingStory] = useState<{ id: string, title: string, thumbnail: string } | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -172,7 +173,7 @@ export default function Dashboard({ stories, setStories, onCreateStory }: Dashbo
                 {...story}
                 viewMode={viewMode}
                 onEdit={handleEditStory}
-                onPlay={(id) => console.log('Play story:', id)}
+                onPlay={onSelectStory}
                 animationDelay={index * 50 + 400}
               />
             ))}

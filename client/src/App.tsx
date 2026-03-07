@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import CreateStoryModal from './components/CreateStoryModal';
+import SceneEditor from './pages/SceneEditor';
 
 // Import thumbnails
 import storyThumb1 from './assets/images/img_thumb_1.webp';
@@ -41,6 +42,8 @@ const INITIAL_STORIES_DATA = [
 
 function App() {
   const [stories, setStories] = useState(INITIAL_STORIES_DATA);
+  const [currentView, setCurrentView] = useState<'dashboard' | 'editor'>('dashboard');
+  const [activeStoryId, setActiveStoryId] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const handleOpenCreateModal = () => {
@@ -49,8 +52,9 @@ function App() {
 
   const handleCreateNewStory = (prompt: string) => {
     console.log('Creating story with prompt:', prompt);
+    const newId = Date.now().toString();
     const newStory = {
-      id: Date.now().toString(),
+      id: newId,
       title: 'Untitled Story',
       thumbnail: storyThumb1, // Placeholder
       author: 'You',
@@ -60,20 +64,38 @@ function App() {
     };
     setStories(prev => [...prev, newStory]);
     setIsCreateModalOpen(false);
+    
+    // Switch to editor
+    setActiveStoryId(newId);
+    setCurrentView('editor');
   };
 
   const handleUpdateStories = (updatedStories: any[]) => {
     setStories(updatedStories);
   };
 
+  const activeStory = stories.find(s => s.id === activeStoryId);
+
   return (
-    <div className="bg-mesh noise-overlay relative min-h-screen overflow-x-hidden">
+    <div className="bg-mesh noise-overlay relative min-h-screen overflow-x-hidden pt-16">
       <Navbar onCreateStory={handleOpenCreateModal} />
-      <Dashboard 
-        stories={stories} 
-        setStories={handleUpdateStories}
-        onCreateStory={handleOpenCreateModal} 
-      />
+      
+      {currentView === 'dashboard' ? (
+        <Dashboard 
+          stories={stories} 
+          setStories={handleUpdateStories}
+          onCreateStory={handleOpenCreateModal} 
+          onSelectStory={(id) => {
+            setActiveStoryId(id);
+            setCurrentView('editor');
+          }}
+        />
+      ) : (
+        <SceneEditor 
+          story={activeStory} 
+          onBack={() => setCurrentView('dashboard')} 
+        />
+      )}
       
       <CreateStoryModal
         isOpen={isCreateModalOpen}
