@@ -34,6 +34,7 @@ interface SceneEditorProps {
 export default function SceneEditor({ story, onBack }: SceneEditorProps) {
   const [activeSceneId, setActiveSceneId] = useState<string>('scene-1');
   const [selectedPathIds, setSelectedPathIds] = useState<string[]>(['scene-1']);
+  const [unlockedIds, setUnlockedIds] = useState<string[]>(['scene-1']);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -253,23 +254,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
   };
 
   const isSceneLocked = (sceneId: string) => {
-    // 1. Root is always unlocked
-    if (sceneId === 'scene-1') return false;
-
-    // 2. A scene is unlocked if it OR any of its ancestors
-    // are in the selected path at an index > 0.
-    // This makes the initial choices (2.1/2.2) locked until clicked,
-    // and once clicked, the entire chosen branch unlocks.
-    const isNodeInChosenBranch = (id: string): boolean => {
-      const idx = selectedPathIds.indexOf(id);
-      if (idx > 0) return true; // Found in path at index 1, 2, etc.
-
-      const parent = scenes.find(s => s.nextScenes.includes(id));
-      if (!parent) return false;
-      return isNodeInChosenBranch(parent.id);
-    };
-
-    return !isNodeInChosenBranch(sceneId);
+    return !unlockedIds.includes(sceneId);
   };
 
   const isPathActive = (fromId: string, toId: string) => {
@@ -651,7 +636,10 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
                       {scenes.filter(s => activeScene.nextScenes.includes(s.id)).map((choice, idx) => (
                         <button
                           key={choice.id}
-                          onClick={() => handleSelectScene(choice.id)}
+                          onClick={() => {
+                            setUnlockedIds(prev => Array.from(new Set([...prev, choice.id])));
+                            handleSelectScene(choice.id);
+                          }}
                           className="group relative overflow-hidden rounded-xl border border-white/10 bg-black/40 px-8 py-5 transition-all hover:scale-105 hover:border-[var(--color-accent-primary)] hover:bg-black/60 active:scale-95"
                           style={{ animationDelay: `${idx * 150}ms` }}
                         >
@@ -746,9 +734,9 @@ function SceneNode({ scene, isActive, isLocked, onClick, onSelect, onEdit }: { s
   return (
     <div
       onClick={(e) => {
-        onSelect();
+        if (!isLocked) onSelect();
       }}
-      className={`group relative flex flex-col items-center animate-[card-enter] cursor-pointer ${isLocked ? 'opacity-40 grayscale' : ''}`}
+      className={`group relative flex flex-col items-center animate-[card-enter] ${isLocked ? 'opacity-40 grayscale cursor-not-allowed' : 'cursor-pointer'}`}
     >
       {/* Locked Overlay Icon */}
       {isLocked && (
