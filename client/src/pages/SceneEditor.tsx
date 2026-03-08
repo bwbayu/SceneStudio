@@ -143,6 +143,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
   const [selectedPathIds, setSelectedPathIds] = useState<string[]>(['scene-1']);
   const [unlockedIds, setUnlockedIds] = useState<string[]>(['scene-1']);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [showChoices, setShowChoices] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     actor: true,
@@ -344,6 +345,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
 
   const handleSelectScene = (sceneId: string) => {
     setActiveSceneId(sceneId);
+    setShowChoices(false); // Reset delay when switching scenes in preview
 
     // Find where this scene fits in the story tree
     const parentScene = scenes.find(s => s.nextScenes.includes(sceneId));
@@ -624,7 +626,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
               scene={scenes[0]}
               isActive={activeSceneId === scenes[0].id}
               isLocked={isSceneLocked(scenes[0].id)}
-              onClick={() => setIsPreviewOpen(true)}
+              onClick={() => { handleSelectScene(scenes[0].id); setIsPreviewOpen(true); }}
               onSelect={() => handleSelectScene(scenes[0].id)}
               onEdit={() => handleEditScene(scenes[0])}
             />
@@ -641,7 +643,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
                   scene={scenes[1]}
                   isActive={activeSceneId === scenes[1].id}
                   isLocked={isSceneLocked(scenes[1].id)}
-                  onClick={() => setIsPreviewOpen(true)}
+                  onClick={() => { handleSelectScene(scenes[1].id); setIsPreviewOpen(true); }}
                   onSelect={() => handleSelectScene(scenes[1].id)}
                   onEdit={() => handleEditScene(scenes[1])}
                 />
@@ -653,7 +655,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
                     scene={scenes[3]}
                     isActive={activeSceneId === scenes[3].id}
                     isLocked={isSceneLocked(scenes[3].id)}
-                    onClick={() => setIsPreviewOpen(true)}
+                    onClick={() => { handleSelectScene(scenes[3].id); setIsPreviewOpen(true); }}
                     onSelect={() => handleSelectScene(scenes[3].id)}
                     onEdit={() => handleEditScene(scenes[3])}
                   />
@@ -661,7 +663,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
                     scene={scenes[4]}
                     isActive={activeSceneId === scenes[4].id}
                     isLocked={isSceneLocked(scenes[4].id)}
-                    onClick={() => setIsPreviewOpen(true)}
+                    onClick={() => { handleSelectScene(scenes[4].id); setIsPreviewOpen(true); }}
                     onSelect={() => handleSelectScene(scenes[4].id)}
                     onEdit={() => handleEditScene(scenes[4])}
                   />
@@ -674,7 +676,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
                   scene={scenes[2]}
                   isActive={activeSceneId === scenes[2].id}
                   isLocked={isSceneLocked(scenes[2].id)}
-                  onClick={() => setIsPreviewOpen(true)}
+                  onClick={() => { handleSelectScene(scenes[2].id); setIsPreviewOpen(true); }}
                   onSelect={() => handleSelectScene(scenes[2].id)}
                   onEdit={() => handleEditScene(scenes[2])}
                 />
@@ -686,7 +688,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
                     scene={scenes[5]}
                     isActive={activeSceneId === scenes[5].id}
                     isLocked={isSceneLocked(scenes[5].id)}
-                    onClick={() => setIsPreviewOpen(true)}
+                    onClick={() => { handleSelectScene(scenes[5].id); setIsPreviewOpen(true); }}
                     onSelect={() => handleSelectScene(scenes[5].id)}
                     onEdit={() => handleEditScene(scenes[5])}
                   />
@@ -694,7 +696,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
                     scene={scenes[6]}
                     isActive={activeSceneId === scenes[6].id}
                     isLocked={isSceneLocked(scenes[6].id)}
-                    onClick={() => setIsPreviewOpen(true)}
+                    onClick={() => { handleSelectScene(scenes[6].id); setIsPreviewOpen(true); }}
                     onSelect={() => handleSelectScene(scenes[6].id)}
                     onEdit={() => handleEditScene(scenes[6])}
                   />
@@ -715,10 +717,23 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
             {/* Background Layer - Fullscreen Video */}
             <div className="absolute inset-0 z-0">
               <video
+                key={activeSceneId}
                 autoPlay
-                loop
                 muted
                 playsInline
+                onTimeUpdate={(e) => {
+                  const video = e.currentTarget;
+                  if (video.duration && video.duration - video.currentTime <= 2) {
+                    setShowChoices(true);
+                  } else {
+                    setShowChoices(false);
+                  }
+                }}
+                onEnded={(e) => {
+                  const video = e.currentTarget;
+                  video.currentTime = Math.max(0, video.duration - 2);
+                  video.play();
+                }}
                 className="h-full w-full object-cover opacity-80"
               >
                 <source src={bgVideo} type="video/mp4" />
@@ -738,7 +753,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
             <div className="relative z-[210] flex h-full w-full flex-col justify-end p-12 lg:p-24">
 
               {/* Choices Layer - Above Subtitles */}
-              <div className="mb-12 flex flex-col items-center gap-6 animate-[slide-up]">
+              <div className={`mb-12 flex flex-col items-center gap-6 transition-all duration-1000 ${showChoices ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-95 pointer-events-none'}`}>
                 {activeScene.nextScenes.length > 0 && (
                   <>
                     <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--color-accent-primary)] mb-2">What will you do?</p>
