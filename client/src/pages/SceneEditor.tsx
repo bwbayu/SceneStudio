@@ -402,7 +402,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
           <h2 className="text-xl font-bold text-white" style={{ fontFamily: "'Sora', sans-serif" }}>Asset</h2>
         </div>
 
-        <div className="flex-1 overflow-y-auto flex flex-col px-4 py-6 gap-3 scrollbar-thin scrollbar-thumb-[var(--color-border-hover)] scrollbar-track-transparent">
+        <div className="flex-1 flex flex-col px-4 py-6 gap-3 min-h-0 overflow-hidden">
 
           {/* Actor Section */}
           <section className="rounded-xl border border-[var(--color-border-default)] bg-white/5 overflow-hidden flex flex-col transition-all duration-300">
@@ -496,7 +496,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
           </section>
 
           {/* Script Section */}
-          <section className={`rounded-xl border border-[var(--color-border-default)] bg-white/5 overflow-hidden flex flex-col transition-all duration-300 ${expandedSections.script ? 'flex-1 min-h-[250px]' : 'flex-none'}`}>
+          <section className={`rounded-xl border border-[var(--color-border-default)] bg-white/5 overflow-hidden flex flex-col transition-all duration-300 min-h-0 ${expandedSections.script ? 'flex-1' : 'flex-none'}`}>
             <button
               onClick={() => toggleSection('script')}
               className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
@@ -506,9 +506,9 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
                 <ChevronDownIcon className="h-4 w-4 text-[var(--color-text-muted)]" />
               </div>
             </button>
-            <div className={`grid overflow-hidden transition-all duration-300 ease-in-out ${expandedSections.script ? 'grid-rows-[1fr] opacity-100 flex-1 border-t border-white/5' : 'grid-rows-[0fr] opacity-0 invisible'}`}>
-              <div className="min-h-0 flex flex-col">
-                <div className="flex-1 flex flex-col p-4 pt-0">
+            <div className={`grid transition-all duration-300 ease-in-out min-h-0 ${expandedSections.script ? 'grid-rows-[1fr] opacity-100 flex-1 border-t border-white/5' : 'grid-rows-[0fr] opacity-0 invisible'}`}>
+              <div className="overflow-hidden">
+                <div className="h-full flex flex-col p-4 pt-0">
                   <div className="mb-4 flex items-center justify-end px-1 gap-2 pt-4">
                     <button
                       onClick={handleAddManualScript}
