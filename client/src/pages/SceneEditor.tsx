@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   TrashIcon,
   MagicIcon,
@@ -35,6 +35,22 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
   const [selectedPathIds, setSelectedPathIds] = useState<string[]>(['scene-1']);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    actor: true,
+    theme: true,
+    script: true
+  });
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const handleHorizontalWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    const container = e.currentTarget;
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      container.scrollLeft += e.deltaY;
+    }
+  };
 
   // Panning States
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -52,11 +68,38 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingScene, setEditingScene] = useState<Scene | null>(null);
 
-  const [actors] = useState([
+  // Delete Modal States
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{ type: 'actor' | 'theme', id?: string } | null>(null);
+
+  const [actors, setActors] = useState([
     { id: 'a1', img: actor1 },
     { id: 'a2', img: actor2 }
   ]);
-  const [theme] = useState(themeImg);
+  const [theme, setTheme] = useState(themeImg);
+
+  // Auto-hide scrollbar logic
+  useEffect(() => {
+    let timer: any;
+    const showScrollbar = () => {
+      document.documentElement.style.setProperty('--scrollbar-opacity', '1');
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        document.documentElement.style.setProperty('--scrollbar-opacity', '0');
+      }, 1000);
+    };
+
+    window.addEventListener('scroll', showScrollbar, true);
+    window.addEventListener('wheel', showScrollbar, true);
+    window.addEventListener('mousemove', showScrollbar, true);
+
+    return () => {
+      window.removeEventListener('scroll', showScrollbar, true);
+      window.removeEventListener('wheel', showScrollbar, true);
+      window.removeEventListener('mousemove', showScrollbar, true);
+      clearTimeout(timer);
+    };
+  }, []);
 
   const [scenes, setScenes] = useState<Scene[]>([
     {
@@ -172,6 +215,24 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
     setScenes(prev => prev.map(s => s.id === updatedScene.id ? updatedScene : s));
   };
 
+  const handleDeleteClick = (type: 'actor' | 'theme', id?: string) => {
+    setItemToDelete({ type, id });
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (!itemToDelete) return;
+
+    if (itemToDelete.type === 'actor' && itemToDelete.id) {
+      setActors(prev => prev.filter(a => a.id !== itemToDelete.id));
+    } else if (itemToDelete.type === 'theme') {
+      setTheme(''); // Or set to a placeholder
+    }
+
+    setIsDeleteModalOpen(false);
+    setItemToDelete(null);
+  };
+
   const handleSelectScene = (sceneId: string) => {
     setActiveSceneId(sceneId);
 
@@ -248,124 +309,168 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
           <h2 className="text-xl font-bold text-white" style={{ fontFamily: "'Sora', sans-serif" }}>Asset</h2>
         </div>
 
-        <div className="flex-1 overflow-hidden flex flex-col px-4 py-6 gap-6">
+        <div className="flex-1 overflow-y-auto flex flex-col px-4 py-6 gap-3 scrollbar-thin scrollbar-thumb-[var(--color-border-hover)] scrollbar-track-transparent">
 
-          {/* Actor Section - Horizontal Scroll */}
-          <section className="rounded-xl border border-[var(--color-border-default)] bg-white/5 p-4 flex-shrink-0">
-            <div className="mb-4 flex items-center justify-between px-1">
+          {/* Actor Section */}
+          <section className="rounded-xl border border-[var(--color-border-default)] bg-white/5 overflow-hidden flex flex-col transition-all duration-300">
+            <button
+              onClick={() => toggleSection('actor')}
+              className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
+            >
               <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">Actor</h3>
-              <button
-                onClick={() => handleOpenGen('actor')}
-                className="text-[var(--color-text-muted)] hover:text-[var(--color-accent-primary)] transition-colors"
-              >
-                <MagicIcon className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="flex flex-nowrap gap-3 overflow-x-auto pb-2 scrollbar-none hover:scrollbar-thin scrollbar-thumb-[var(--color-border-hover)] scrollbar-track-transparent">
-              {actors.map(actor => (
-                <div key={actor.id} className="group relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border border-white/10 shadow-lg">
-                  <img src={actor.img} alt="Actor" className="h-full w-full object-cover" />
-                  <button className="absolute right-1 top-1 rounded bg-black/60 p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-400">
-                    <TrashIcon className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
-              <button
-                onClick={() => handleOpenGen('actor')}
-                className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg border border-dashed border-white/20 text-[var(--color-text-muted)] transition-all hover:border-[var(--color-accent-primary)]/50 hover:bg-white/5 hover:text-[var(--color-accent-primary)]"
-              >
-                <PlusIcon className="h-6 w-6" />
-              </button>
-            </div>
-          </section>
-
-          {/* Theme Section - Horizontal Scroll (if multiple) */}
-          <section className="rounded-xl border border-[var(--color-border-default)] bg-white/5 p-4 flex-shrink-0">
-            <div className="mb-4 flex items-center justify-between px-1">
-              <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">Theme</h3>
-              <button
-                onClick={() => handleOpenGen('theme')}
-                className="text-[var(--color-text-muted)] hover:text-[var(--color-accent-primary)] transition-colors"
-              >
-                <MagicIcon className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="flex flex-nowrap gap-3 overflow-x-auto pb-2 scrollbar-none hover:scrollbar-thin">
-              <div className="group relative aspect-video w-full flex-shrink-0 overflow-hidden rounded-lg border border-white/10 shadow-xl">
-                <img src={theme} alt="Theme" className="h-full w-full object-cover" />
-                <button className="absolute right-2 top-2 rounded bg-black/60 p-1.5 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-400">
-                  <TrashIcon className="h-4 w-4" />
-                </button>
+              <div className={`transition-transform duration-300 ${expandedSections.actor ? 'rotate-180' : 'rotate-0'}`}>
+                <ChevronDownIcon className="h-4 w-4 text-[var(--color-text-muted)]" />
               </div>
-              {/* Added a placeholder for another theme to demonstrate scroll-x if requested */}
-              <div
-                onClick={() => handleOpenGen('theme')}
-                className="group relative aspect-video w-full flex-shrink-0 cursor-pointer overflow-hidden rounded-lg border border-white/10 opacity-30 transition-all hover:opacity-100 hover:border-[var(--color-accent-primary)]/50"
-              >
-                <div className="flex h-full w-full items-center justify-center bg-black/20">
-                  <PlusIcon className="h-8 w-8 text-white/20" />
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Script Section - Vertical Scroll */}
-          <section className="flex-1 min-h-0 flex flex-col rounded-xl border border-[var(--color-border-default)] bg-white/5 p-4">
-            <div className="mb-4 flex items-center justify-between px-1">
-              <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">Script</h3>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleAddManualScript}
-                  className="text-[var(--color-text-muted)] hover:text-[var(--color-accent-primary)] transition-colors"
-                >
-                  <PlusIcon className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => handleOpenGen('script')}
-                  className="text-[var(--color-text-muted)] hover:text-[var(--color-accent-primary)] transition-colors"
-                >
-                  <MagicIcon className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-[var(--color-border-hover)] scrollbar-track-transparent">
-              {scenes.map(scene => (
-                <div key={scene.id} className="flex flex-col">
-                  <button
-                    onClick={() => setActiveSceneId(activeSceneId === scene.id ? '' : scene.id)}
-                    className={`flex items-center justify-between rounded-lg px-4 py-3 text-sm font-bold transition-all duration-300 ${activeSceneId === scene.id
-                      ? 'bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-accent-secondary)] text-black shadow-lg shadow-[var(--color-accent-primary)]/20'
-                      : 'bg-white/5 text-[var(--color-text-primary)] hover:bg-white/10'
-                      }`}
-                    style={{ fontFamily: "'Sora', sans-serif" }}
+            </button>
+            <div className={`grid overflow-hidden transition-all duration-300 ease-in-out ${expandedSections.actor ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+              <div className="min-h-0">
+                <div className="p-4 pt-0">
+                  <div
+                    onWheel={handleHorizontalWheel}
+                    className="flex flex-nowrap gap-3 overflow-x-auto pb-2 scrollbar-none hover:scrollbar-thin scrollbar-thumb-[var(--color-border-hover)] scrollbar-track-transparent"
                   >
-                    {scene.title}
-                    <div className={`transition-transform duration-300 ${activeSceneId === scene.id ? 'rotate-180' : 'rotate-0'}`}>
-                      <ChevronDownIcon className="h-4 w-4" />
-                    </div>
-                  </button>
-
-                  <div className={`grid overflow-hidden transition-all duration-300 ease-in-out ${activeSceneId === scene.id
-                    ? 'grid-rows-[1fr] opacity-100 mt-2'
-                    : 'grid-rows-[0fr] opacity-0 mt-0 invisible'
-                    }`}>
-                    <div className="min-h-0">
-                      <div className="relative rounded-lg bg-[var(--color-accent-rose)]/10 p-4 border border-[var(--color-accent-rose)]/20">
+                    {actors.map(actor => (
+                      <div key={actor.id} className="group relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border border-white/10 shadow-lg">
+                        <img src={actor.img} alt="Actor" className="h-full w-full object-cover" />
                         <button
-                          onClick={() => handleEditScene(scene)}
-                          className="absolute right-2 top-2 text-[var(--color-accent-rose)] hover:scale-110 transition-transform"
+                          onClick={() => handleDeleteClick('actor', actor.id)}
+                          className="absolute right-1 top-1 rounded bg-black/60 p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-400"
                         >
-                          <EditIcon className="h-4 w-4" />
+                          <TrashIcon className="h-3 w-3" />
                         </button>
-                        <p className="text-xs leading-relaxed text-[var(--color-text-primary)] pr-6" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                          {scene.script}
-                        </p>
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => handleOpenGen('actor')}
+                      className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg border border-dashed border-white/20 text-[var(--color-text-muted)] transition-all hover:border-[var(--color-accent-primary)]/50 hover:bg-white/5 hover:text-[var(--color-accent-primary)]"
+                    >
+                      <PlusIcon className="h-6 w-6" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Theme Section */}
+          <section className="rounded-xl border border-[var(--color-border-default)] bg-white/5 overflow-hidden flex flex-col transition-all duration-300">
+            <button
+              onClick={() => toggleSection('theme')}
+              className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
+            >
+              <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">Theme</h3>
+              <div className={`transition-transform duration-300 ${expandedSections.theme ? 'rotate-180' : 'rotate-0'}`}>
+                <ChevronDownIcon className="h-4 w-4 text-[var(--color-text-muted)]" />
+              </div>
+            </button>
+            <div className={`grid overflow-hidden transition-all duration-300 ease-in-out ${expandedSections.theme ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+              <div className="min-h-0">
+                <div className="p-0 border-t border-white/5">
+                  <div
+                    onWheel={handleHorizontalWheel}
+                    className="flex flex-nowrap overflow-x-auto scrollbar-none hover:scrollbar-thin"
+                  >
+                    <div className="group relative aspect-video w-full flex-shrink-0 overflow-hidden">
+                      {theme ? (
+                        <>
+                          <img src={theme} alt="Theme" className="h-full w-full object-cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                          <button
+                            onClick={() => handleDeleteClick('theme')}
+                            className="absolute right-3 top-3 rounded-full bg-black/60 p-2 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-400 backdrop-blur-md"
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-white/5 text-[var(--color-text-muted)] text-[10px] uppercase tracking-widest font-bold">
+                          No Theme Selected
+                        </div>
+                      )}
+                    </div>
+                    <div
+                      onClick={() => handleOpenGen('theme')}
+                      className="group relative aspect-video w-24 flex-shrink-0 cursor-pointer overflow-hidden border-l border-white/5"
+                    >
+                      <div className="flex h-full w-full items-center justify-center bg-white/5 hover:bg-white/10 transition-colors">
+                        <PlusIcon className="h-6 w-6 text-white/20" />
                       </div>
                     </div>
                   </div>
                 </div>
-              ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Script Section */}
+          <section className={`rounded-xl border border-[var(--color-border-default)] bg-white/5 overflow-hidden flex flex-col transition-all duration-300 ${expandedSections.script ? 'flex-1 min-h-[250px]' : 'flex-none'}`}>
+            <button
+              onClick={() => toggleSection('script')}
+              className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors"
+            >
+              <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">Script</h3>
+              <div className={`transition-transform duration-300 ${expandedSections.script ? 'rotate-180' : 'rotate-0'}`}>
+                <ChevronDownIcon className="h-4 w-4 text-[var(--color-text-muted)]" />
+              </div>
+            </button>
+            <div className={`grid overflow-hidden transition-all duration-300 ease-in-out ${expandedSections.script ? 'grid-rows-[1fr] opacity-100 flex-1 border-t border-white/5' : 'grid-rows-[0fr] opacity-0 invisible'}`}>
+              <div className="min-h-0 flex flex-col">
+                <div className="flex-1 flex flex-col p-4 pt-0">
+                  <div className="mb-4 flex items-center justify-end px-1 gap-2 pt-4">
+                    <button
+                      onClick={handleAddManualScript}
+                      className="text-[var(--color-text-muted)] hover:text-[var(--color-accent-primary)] transition-colors"
+                    >
+                      <PlusIcon className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleOpenGen('script')}
+                      className="text-[var(--color-text-muted)] hover:text-[var(--color-accent-primary)] transition-colors"
+                    >
+                      <MagicIcon className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-[var(--color-border-hover)] scrollbar-track-transparent">
+                    {scenes.map(scene => (
+                      <div key={scene.id} className="flex flex-col">
+                        <button
+                          onClick={() => setActiveSceneId(activeSceneId === scene.id ? '' : scene.id)}
+                          className={`flex items-center justify-between rounded-lg px-4 py-3 text-sm font-bold transition-all duration-300 ${activeSceneId === scene.id
+                            ? 'bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-accent-secondary)] text-black shadow-lg shadow-[var(--color-accent-primary)]/20'
+                            : 'bg-white/5 text-[var(--color-text-primary)] hover:bg-white/10'
+                            }`}
+                          style={{ fontFamily: "'Sora', sans-serif" }}
+                        >
+                          {scene.title}
+                          <div className={`transition-transform duration-300 ${activeSceneId === scene.id ? 'rotate-180' : 'rotate-0'}`}>
+                            <ChevronDownIcon className="h-4 w-4" />
+                          </div>
+                        </button>
+
+                        <div className={`grid overflow-hidden transition-all duration-300 ease-in-out ${activeSceneId === scene.id
+                          ? 'grid-rows-[1fr] opacity-100 mt-2'
+                          : 'grid-rows-[0fr] opacity-0 mt-0 invisible'
+                          }`}>
+                          <div className="min-h-0">
+                            <div className="relative rounded-lg bg-[var(--color-accent-rose)]/10 p-4 border border-[var(--color-accent-rose)]/20">
+                              <button
+                                onClick={() => handleEditScene(scene)}
+                                className="absolute right-2 top-2 text-[var(--color-accent-rose)] hover:scale-110 transition-transform"
+                              >
+                                <EditIcon className="h-4 w-4" />
+                              </button>
+                              <p className="text-xs leading-relaxed text-[var(--color-text-primary)] pr-6" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                                {scene.script}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
         </div>
@@ -373,8 +478,8 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
 
       {/* Navigation Breadcrumb - Outside Main to prevent scrolling */}
       <div className={`absolute top-6 z-20 transition-all duration-500 ease-in-out pointer-events-none flex items-center ${isSidebarOpen
-          ? 'lg:left-[480px] lg:right-0 lg:justify-center left-20 w-auto opacity-0 lg:opacity-100'
-          : 'left-20 w-auto justify-start opacity-100'
+        ? 'lg:left-[480px] lg:right-0 lg:justify-center left-20 w-auto opacity-0 lg:opacity-100'
+        : 'left-20 w-auto justify-start opacity-100'
         }`}>
         <div className="flex items-center gap-3 pointer-events-auto">
           <button
@@ -503,57 +608,59 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
             </div>
           </div>
         </div>
-      </main>
+      </main >
 
       {/* ============================
           SCENE THEATER PREVIEW
           ============================ */}
-      {isPreviewOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black animate-[fade-in]">
-          {/* Background Layer */}
-          <div className="absolute inset-0">
-            <img src={theme} alt="Theme" className="h-full w-full object-cover opacity-60 blur-[2px]" />
-          </div>
+      {
+        isPreviewOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black animate-[fade-in]">
+            {/* Background Layer */}
+            <div className="absolute inset-0">
+              <img src={theme} alt="Theme" className="h-full w-full object-cover opacity-60 blur-[2px]" />
+            </div>
 
-          {/* Close Button */}
-          <button
-            onClick={() => setIsPreviewOpen(false)}
-            className="absolute right-8 top-8 z-[110] rounded-full bg-black/40 p-3 text-white backdrop-blur-md transition-all hover:scale-110 hover:bg-[var(--color-accent-rose)]"
-          >
-            <XIcon className="h-6 w-6" />
-          </button>
+            {/* Close Button */}
+            <button
+              onClick={() => setIsPreviewOpen(false)}
+              className="absolute right-8 top-8 z-[110] rounded-full bg-black/40 p-3 text-white backdrop-blur-md transition-all hover:scale-110 hover:bg-[var(--color-accent-rose)]"
+            >
+              <XIcon className="h-6 w-6" />
+            </button>
 
-          {/* Scene Stage */}
-          <div className="relative z-[105] flex h-full w-full items-center justify-center p-20">
-            <div className="relative aspect-video w-full max-w-6xl overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
-              <img src={theme} alt="Scene Theme" className="h-full w-full object-cover" />
+            {/* Scene Stage */}
+            <div className="relative z-[105] flex h-full w-full items-center justify-center p-20">
+              <div className="relative aspect-video w-full max-w-6xl overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
+                <img src={theme} alt="Scene Theme" className="h-full w-full object-cover" />
 
-              {/* Actors in Scene */}
-              <div className="absolute inset-0 flex items-end justify-center gap-20 pb-20">
-                <img
-                  src={actors[1].img}
-                  alt="Actor Left"
-                  className="h-1/2 w-auto animate-[slide-up] transition-transform hover:scale-105"
-                  style={{ animationDelay: '300ms' }}
-                />
-                <img
-                  src={actors[0].img}
-                  alt="Actor Right"
-                  className="h-1/2 w-auto animate-[slide-up] transition-transform hover:scale-105"
-                  style={{ animationDelay: '500ms' }}
-                />
-              </div>
+                {/* Actors in Scene */}
+                <div className="absolute inset-0 flex items-end justify-center gap-20 pb-20">
+                  <img
+                    src={actors[1].img}
+                    alt="Actor Left"
+                    className="h-1/2 w-auto animate-[slide-up] transition-transform hover:scale-105"
+                    style={{ animationDelay: '300ms' }}
+                  />
+                  <img
+                    src={actors[0].img}
+                    alt="Actor Right"
+                    className="h-1/2 w-auto animate-[slide-up] transition-transform hover:scale-105"
+                    style={{ animationDelay: '500ms' }}
+                  />
+                </div>
 
-              {/* Subtitle Overlay */}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-12 text-center">
-                <p className="mx-auto max-w-3xl text-xl font-bold uppercase tracking-wider text-white drop-shadow-lg" style={{ fontFamily: "'Sora', sans-serif" }}>
-                  {activeScene.script}
-                </p>
+                {/* Subtitle Overlay */}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-12 text-center">
+                  <p className="mx-auto max-w-3xl text-xl font-bold uppercase tracking-wider text-white drop-shadow-lg" style={{ fontFamily: "'Sora', sans-serif" }}>
+                    {activeScene.script}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Generation Modal */}
       <AssetGenerationModal
@@ -571,7 +678,41 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
         scene={editingScene}
         onSave={handleUpdateScene}
       />
-    </div>
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsDeleteModalOpen(false)} />
+          <div className="relative w-full max-w-sm rounded-2xl border border-white/10 bg-[var(--color-bg-secondary)] p-8 shadow-2xl animate-[scale-in]">
+            <div className="mb-6 flex justify-center">
+              <div className="rounded-full bg-red-500/10 p-4 border border-red-500/20 text-red-500">
+                <TrashIcon className="h-8 w-8" />
+              </div>
+            </div>
+            <h3 className="mb-2 text-center text-xl font-bold text-white" style={{ fontFamily: "'Sora', sans-serif" }}>
+              Are you sure?
+            </h3>
+            <p className="mb-8 text-center text-sm text-[var(--color-text-secondary)] leading-relaxed">
+              This action cannot be undone. This {itemToDelete?.type} will be permanently removed from your story.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="flex-1 rounded-xl bg-white/5 py-4 text-sm font-bold text-white transition-all hover:bg-white/10"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 rounded-xl bg-gradient-to-r from-red-600 to-red-500 py-4 text-sm font-bold text-white shadow-lg shadow-red-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div >
   );
 }
 

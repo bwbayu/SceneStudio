@@ -228,19 +228,26 @@ body {
 }
 
 /* Scrollbar */
+:root {
+  --scrollbar-opacity: 0;
+}
+
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 2px;
+  height: 2px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg-primary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border-hover);
-  border-radius: 3px;
+  background: rgba(58, 58, 58, var(--scrollbar-opacity));
+  /* Using rgba with variable for opacity */
+  border-radius: 10px;
+  transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent-primary);
+  background: var(--color-accent-primary) !important;
 }
