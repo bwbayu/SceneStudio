@@ -6,7 +6,8 @@ import {
   EditIcon,
   PlusIcon,
   XIcon,
-  LockIcon
+  LockIcon,
+  ListIcon
 } from '../components/Icons';
 import AssetGenerationModal from '../components/AssetGenerationModal';
 import SceneEditModal from '../components/SceneEditModal';
@@ -33,6 +34,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
   const [activeSceneId, setActiveSceneId] = useState<string>('scene-1');
   const [selectedPathIds, setSelectedPathIds] = useState<string[]>(['scene-1']);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Panning States
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -216,10 +218,32 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
   return (
     <div className="relative flex h-[calc(100vh-64px)] w-full overflow-hidden bg-[var(--color-bg-primary)]">
 
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden animate-[fade-in]"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar Toggle Button */}
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className={`absolute top-6 z-[60] flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[var(--color-bg-secondary)] text-white backdrop-blur-md transition-all duration-500 hover:scale-[1.15] active:scale-90 shadow-2xl ${isSidebarOpen ? 'lg:left-[430px] left-[calc(85vw-50px)]' : 'left-6'
+          }`}
+      >
+        {isSidebarOpen ? (
+          <XIcon className="h-5 w-5 text-[var(--color-accent-rose)]" />
+        ) : (
+          <ListIcon className="h-5 w-5 text-[var(--color-accent-primary)]" />
+        )}
+      </button>
+
       {/* ============================
           LEFT SIDEBAR (ASSET)
           ============================ */}
-      <aside className="w-80 flex-shrink-0 border-r border-[var(--color-border-default)] bg-[var(--color-bg-secondary)] flex flex-col h-full">
+      <aside className={`absolute inset-y-0 left-0 z-50 w-[480px] max-w-[85vw] flex-shrink-0 border-r border-[var(--color-border-default)] bg-[var(--color-bg-secondary)] flex flex-col h-full transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:relative lg:translate-x-0 ${isSidebarOpen ? 'lg:w-[480px]' : 'lg:w-0 lg:opacity-0 lg:pointer-events-none'}`}>
         <div className="px-6 py-8 border-b border-[var(--color-border-default)]">
           <h2 className="text-xl font-bold text-white" style={{ fontFamily: "'Sora', sans-serif" }}>Asset</h2>
         </div>
@@ -311,8 +335,8 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
                   <button
                     onClick={() => setActiveSceneId(activeSceneId === scene.id ? '' : scene.id)}
                     className={`flex items-center justify-between rounded-lg px-4 py-3 text-sm font-bold transition-all duration-300 ${activeSceneId === scene.id
-                        ? 'bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-accent-secondary)] text-black shadow-lg shadow-[var(--color-accent-primary)]/20'
-                        : 'bg-white/5 text-[var(--color-text-primary)] hover:bg-white/10'
+                      ? 'bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-accent-secondary)] text-black shadow-lg shadow-[var(--color-accent-primary)]/20'
+                      : 'bg-white/5 text-[var(--color-text-primary)] hover:bg-white/10'
                       }`}
                     style={{ fontFamily: "'Sora', sans-serif" }}
                   >
@@ -323,8 +347,8 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
                   </button>
 
                   <div className={`grid overflow-hidden transition-all duration-300 ease-in-out ${activeSceneId === scene.id
-                      ? 'grid-rows-[1fr] opacity-100 mt-2'
-                      : 'grid-rows-[0fr] opacity-0 mt-0 invisible'
+                    ? 'grid-rows-[1fr] opacity-100 mt-2'
+                    : 'grid-rows-[0fr] opacity-0 mt-0 invisible'
                     }`}>
                     <div className="min-h-0">
                       <div className="relative rounded-lg bg-[var(--color-accent-rose)]/10 p-4 border border-[var(--color-accent-rose)]/20">
@@ -347,6 +371,23 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
         </div>
       </aside>
 
+      {/* Navigation Breadcrumb - Outside Main to prevent scrolling */}
+      <div className={`absolute top-6 z-20 transition-all duration-500 ease-in-out pointer-events-none flex items-center ${isSidebarOpen
+          ? 'lg:left-[480px] lg:right-0 lg:justify-center left-20 w-auto opacity-0 lg:opacity-100'
+          : 'left-20 w-auto justify-start opacity-100'
+        }`}>
+        <div className="flex items-center gap-3 pointer-events-auto">
+          <button
+            onClick={onBack}
+            className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] hover:text-[var(--color-accent-primary)] transition-colors"
+          >
+            Dashboard
+          </button>
+          <span className="text-[var(--color-text-muted)]">/</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-accent-primary)]">{story.title}</span>
+        </div>
+      </div>
+
       {/* ============================
           MAIN CANVAS (FLOW)
           ============================ */}
@@ -358,18 +399,6 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
         onMouseLeave={stopDragging}
         className={`relative flex-1 bg-[var(--color-bg-primary)] overflow-auto select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
       >
-        {/* Navigation Breadcrumb */}
-        <div className="fixed left-[340px] top-10 z-20 flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] hover:text-[var(--color-accent-primary)] transition-colors"
-          >
-            Dashboard
-          </button>
-          <span className="text-[var(--color-text-muted)]">/</span>
-          <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-accent-primary)]">{story.title}</span>
-        </div>
-
         {/* Floating Instruction */}
         <div className="fixed bottom-10 right-10 z-20 rounded-full bg-black/60 border border-white/10 px-6 py-3 backdrop-blur-md">
           <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">
@@ -569,8 +598,8 @@ function SceneNode({ scene, isActive, isLocked, onClick, onSelect, onEdit }: { s
       <div
         onClick={onSelect}
         className={`relative w-48 overflow-hidden rounded-xl border p-4 transition-all duration-300 ${isActive
-            ? 'border-[var(--color-accent-primary)] bg-[var(--color-bg-card)]'
-            : 'border-[var(--color-border-default)] bg-[var(--color-bg-secondary)] hover:border-[var(--color-border-hover)]'
+          ? 'border-[var(--color-accent-primary)] bg-[var(--color-bg-card)]'
+          : 'border-[var(--color-border-default)] bg-[var(--color-bg-secondary)] hover:border-[var(--color-border-hover)]'
           }`}
       >
         <button
