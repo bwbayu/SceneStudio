@@ -22,6 +22,8 @@ class Segment(BaseModel):
     action_description: str = Field(description="What happens in this ~8-second segment")
     dialogue: list[str] = Field(description="Character dialogue lines, e.g. ['Marcus: Look at these markings.', 'Elena: What markings?']")
     audio: AudioDesign = Field(description="Background music and sound effects design")
+    video_gcs_uri: Optional[str] = Field(default=None, description="GCS URI (gs://...) written by Veo; used as extend source for the next segment")
+    video_url: Optional[str] = Field(default=None, description="Signed HTTPS URL for frontend video playback; regenerated on each session fetch")
 
 
 class Scene(BaseModel):
@@ -37,7 +39,8 @@ class Actor(BaseModel):
     name: str = Field(description="Character name")
     physical_description: str = Field(description="Detailed physical appearance for visual consistency")
     outfit_description: str = Field(description="Clothing and accessories worn in this story")
-    anchor_image_url: Optional[str] = Field(default=None, description="Reference image URL (generated later)")
+    anchor_image_gcs_uri: Optional[str] = Field(default=None, description="GCS URI (gs://...) for the actor reference image; used as visual anchor when generating video")
+    anchor_image_url: Optional[str] = Field(default=None, description="Signed HTTPS URL for frontend display; regenerated on each session fetch")
 
 
 class Theme(BaseModel):
@@ -45,7 +48,8 @@ class Theme(BaseModel):
     location_name: str = Field(description="Name of the location")
     atmosphere: str = Field(description="Atmosphere and mood of the location")
     lighting: str = Field(description="Lighting style and conditions")
-    reference_image_url: Optional[str] = Field(default=None, description="Reference image URL (generated later)")
+    reference_image_gcs_uri: Optional[str] = Field(default=None, description="GCS URI (gs://...) for the theme reference image; used as visual anchor when generating video")
+    reference_image_url: Optional[str] = Field(default=None, description="Signed HTTPS URL for frontend display; regenerated on each session fetch")
 
 
 class StoryBoard(BaseModel):

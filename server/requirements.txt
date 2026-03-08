@@ -1,5 +1,6 @@
 google-genai
 google-adk
+google-cloud-storage
 python-dotenv
 fastapi
 uvicorn
