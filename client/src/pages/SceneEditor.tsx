@@ -16,6 +16,7 @@ import SceneEditModal from '../components/SceneEditModal';
 import actor1 from '../assets/images/img_thumb_1.webp';
 import actor2 from '../assets/images/img_thumb_2.webp';
 import themeImg from '../assets/images/img_thumb_3.webp';
+import bgVideo from '../assets/video/thumb-src.mp4';
 
 interface Scene {
   id: string;
@@ -615,47 +616,72 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
           ============================ */}
       {
         isPreviewOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black animate-[fade-in]">
-            {/* Background Layer */}
-            <div className="absolute inset-0">
-              <img src={theme} alt="Theme" className="h-full w-full object-cover opacity-60 blur-[2px]" />
+          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black animate-[fade-in]">
+            {/* Background Layer - Fullscreen Video */}
+            <div className="absolute inset-0 z-0">
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="h-full w-full object-cover opacity-80"
+              >
+                <source src={bgVideo} type="video/mp4" />
+              </video>
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
             </div>
 
             {/* Close Button */}
             <button
               onClick={() => setIsPreviewOpen(false)}
-              className="absolute right-8 top-8 z-[110] rounded-full bg-black/40 p-3 text-white backdrop-blur-md transition-all hover:scale-110 hover:bg-[var(--color-accent-rose)]"
+              className="absolute right-8 top-8 z-[220] rounded-full bg-black/40 p-3 text-white backdrop-blur-md transition-all hover:scale-110 hover:bg-[var(--color-accent-rose)]"
             >
               <XIcon className="h-6 w-6" />
             </button>
 
-            {/* Scene Stage */}
-            <div className="relative z-[105] flex h-full w-full items-center justify-center p-20">
-              <div className="relative aspect-video w-full max-w-6xl overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
-                <img src={theme} alt="Scene Theme" className="h-full w-full object-cover" />
+            {/* Scene Stage - Content Overlays */}
+            <div className="relative z-[210] flex h-full w-full flex-col justify-end p-12 lg:p-24">
 
-                {/* Actors in Scene */}
-                <div className="absolute inset-0 flex items-end justify-center gap-20 pb-20">
-                  <img
-                    src={actors[1].img}
-                    alt="Actor Left"
-                    className="h-1/2 w-auto animate-[slide-up] transition-transform hover:scale-105"
-                    style={{ animationDelay: '300ms' }}
-                  />
-                  <img
-                    src={actors[0].img}
-                    alt="Actor Right"
-                    className="h-1/2 w-auto animate-[slide-up] transition-transform hover:scale-105"
-                    style={{ animationDelay: '500ms' }}
-                  />
-                </div>
+              {/* Choices Layer - Above Subtitles */}
+              <div className="mb-12 flex flex-col items-center gap-6 animate-[slide-up]">
+                {activeScene.nextScenes.length > 0 && (
+                  <>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--color-accent-primary)] mb-2">What will you do?</p>
+                    <div className="flex flex-wrap justify-center gap-4 max-w-4xl">
+                      {scenes.filter(s => activeScene.nextScenes.includes(s.id)).map((choice, idx) => (
+                        <button
+                          key={choice.id}
+                          onClick={() => handleSelectScene(choice.id)}
+                          className="group relative overflow-hidden rounded-xl border border-white/10 bg-black/40 px-8 py-5 transition-all hover:scale-105 hover:border-[var(--color-accent-primary)] hover:bg-black/60 active:scale-95"
+                          style={{ animationDelay: `${idx * 150}ms` }}
+                        >
+                          <div className="absolute inset-0 translate-y-full bg-gradient-to-t from-[var(--color-accent-primary)]/10 to-transparent transition-transform group-hover:translate-y-0" />
+                          <span className="relative z-10 text-sm font-bold uppercase tracking-widest text-white shadow-sm" style={{ fontFamily: "'Sora', sans-serif" }}>
+                            {choice.title}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
 
-                {/* Subtitle Overlay */}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-12 text-center">
-                  <p className="mx-auto max-w-3xl text-xl font-bold uppercase tracking-wider text-white drop-shadow-lg" style={{ fontFamily: "'Sora', sans-serif" }}>
-                    {activeScene.script}
-                  </p>
-                </div>
+                {activeScene.nextScenes.length === 0 && (
+                  <button
+                    onClick={() => setIsPreviewOpen(false)}
+                    className="group relative overflow-hidden rounded-xl border border-[var(--color-accent-rose)] bg-black/40 px-8 py-5 transition-all hover:scale-105 hover:bg-[var(--color-accent-rose)]/20 active:scale-95"
+                  >
+                    <span className="relative z-10 text-sm font-bold uppercase tracking-widest text-[var(--color-accent-rose)]" style={{ fontFamily: "'Sora', sans-serif" }}>
+                      End of Chapter
+                    </span>
+                  </button>
+                )}
+              </div>
+
+              {/* Subtitle Overlay */}
+              <div className="max-w-4xl mx-auto text-center">
+                <p className="text-xl md:text-3xl font-bold leading-relaxed text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]" style={{ fontFamily: "'Sora', sans-serif" }}>
+                  {activeScene.script}
+                </p>
               </div>
             </div>
           </div>
