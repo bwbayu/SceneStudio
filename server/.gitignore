@@ -2,4 +2,6 @@
 /env
 __pycache__
 /adk-docs
+/static
+/temp
 /keys
