@@ -23,6 +23,7 @@ from models import (
     StartRequest,
 )
 from orchestrator import run_director_round, run_production_pipeline
+from storage import GCSStorageService
 
 from pathlib import Path
 from services import generate_and_save_actor_images
@@ -34,6 +35,9 @@ _sessions: dict[str, SessionState] = {}
 
 # Background tasks tracker: session_id -> asyncio.Task
 _pipeline_tasks: dict[str, asyncio.Task] = {}
+
+# GCS storage service (singleton)
+_storage = GCSStorageService()
 
 
 @asynccontextmanager
@@ -172,6 +176,8 @@ async def answer_questions(session_id: str, request: AnswerRequest) -> SessionRe
 async def get_session(session_id: str) -> SessionResponse:
     """Poll for the current session state (useful while pipeline is processing)."""
     session = _get_session(session_id)
+    if session.storyboard:
+        _storage.refresh_signed_urls_for_storyboard(session.storyboard)
     return _to_response(session)
 
 @app.post("/api/generate-cast-images")
