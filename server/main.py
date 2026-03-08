@@ -24,6 +24,9 @@ from models import (
 )
 from orchestrator import run_director_round, run_production_pipeline
 
+from pathlib import Path
+from services import generate_and_save_actor_images
+
 load_dotenv()
 
 # In-memory session store: session_id -> SessionState
@@ -170,6 +173,29 @@ async def get_session(session_id: str) -> SessionResponse:
     """Poll for the current session state (useful while pipeline is processing)."""
     session = _get_session(session_id)
     return _to_response(session)
+
+@app.post("/api/generate-cast-images")
+async def generate_cast_images():
+    """
+    Menghasilkan gambar karakter menggunakan Gemini 3 Flash Image 
+    berdasarkan deskripsi fisik dan pakaian di storyboard.
+    """
+    file_path = Path("result-example.json")
+
+    template_path = Path("template/character_template.png")
+
+    try:
+        updated_actors = await generate_and_save_actor_images(file_path, template_path)
+        return {
+            "message": "Images generated successfully", 
+            "actors": updated_actors
+        }
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Image generation failed: {str(e)}")
 
 
 @app.get("/health")
