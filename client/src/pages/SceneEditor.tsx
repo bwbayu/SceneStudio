@@ -31,6 +31,113 @@ interface SceneEditorProps {
   onBack: () => void;
 }
 
+function Connection({ fromId, toId, isActive, containerRef }: { fromId: string, toId: string, isActive: boolean, containerRef: React.RefObject<HTMLDivElement | null> }) {
+  const [coords, setCoords] = useState<{ x1: number, y1: number, x2: number, y2: number } | null>(null);
+
+  useEffect(() => {
+    const updatePath = () => {
+      const fromEl = document.querySelector(`[data-scene-id="${fromId}"]`);
+      const toEl = document.querySelector(`[data-scene-id="${toId}"]`);
+      const container = containerRef.current;
+
+      if (fromEl && toEl && container) {
+        const fromRect = fromEl.getBoundingClientRect();
+        const toRect = toEl.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        setCoords({
+          x1: fromRect.right - containerRect.left + container.scrollLeft,
+          y1: fromRect.top + fromRect.height / 2 - containerRect.top + container.scrollTop,
+          x2: toRect.left - containerRect.left + container.scrollLeft,
+          y2: toRect.top + toRect.height / 2 - containerRect.top + container.scrollTop
+        });
+      }
+    };
+
+    updatePath();
+    window.addEventListener('resize', updatePath);
+
+    // Also update on scroll to handle any potential jitter, 
+    // though content-relative coords should be stable.
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', updatePath);
+    }
+
+    const observer = new MutationObserver(updatePath);
+    if (container) {
+      observer.observe(container, { childList: true, subtree: true });
+    }
+
+    return () => {
+      window.removeEventListener('resize', updatePath);
+      if (container) {
+        container.removeEventListener('scroll', updatePath);
+        observer.disconnect();
+      }
+    };
+  }, [fromId, toId, containerRef]);
+
+  if (!coords) return null;
+
+  const dx = coords.x2 - coords.x1;
+  const path = `M ${coords.x1} ${coords.y1} C ${coords.x1 + dx * 0.4} ${coords.y1}, ${coords.x2 - dx * 0.4} ${coords.y2}, ${coords.x2} ${coords.y2}`;
+
+  return (
+    <g>
+      {isActive && (
+        <path d={path} stroke="var(--color-accent-rose)" strokeWidth="6" fill="none" className="opacity-20 blur-md transition-all duration-500" />
+      )}
+      <path d={path} stroke={isActive ? 'var(--color-accent-rose)' : 'var(--color-border-default)'} strokeWidth="2" fill="none" strokeLinecap="round" className="transition-all duration-500" />
+      <circle cx={coords.x2} cy={coords.y2} r="3" fill={isActive ? 'var(--color-accent-rose)' : 'var(--color-border-default)'} className="transition-all duration-500" />
+    </g>
+  );
+}
+
+function SceneNode({ scene, isActive, isLocked, onClick, onSelect, onEdit }: { scene: Scene, isActive: boolean, isLocked: boolean, onClick: () => void, onSelect: () => void, onEdit: () => void }) {
+  return (
+    <div
+      data-scene-id={scene.id}
+      onClick={(e) => { if (!isLocked) onSelect(); }}
+      className={`group relative flex flex-col items-center animate-[card-enter] ${isLocked ? 'opacity-40 grayscale cursor-not-allowed' : 'cursor-pointer'}`}
+    >
+      {isLocked && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center">
+          <div className="rounded-full bg-black/60 p-3 backdrop-blur-sm border border-white/20">
+            <LockIcon className="h-8 w-8 text-white" />
+          </div>
+        </div>
+      )}
+      <div className={`absolute -inset-4 rounded-2xl blur-xl transition-all duration-500 ${isActive ? 'bg-[var(--color-accent-primary)]/20' : 'bg-transparent'}`} />
+      <div
+        onClick={onSelect}
+        className={`relative w-48 overflow-hidden rounded-xl border p-4 transition-all duration-300 ${isActive
+          ? 'border-[var(--color-accent-primary)] bg-[var(--color-bg-card)]'
+          : 'border-[var(--color-border-default)] bg-[var(--color-bg-secondary)] hover:border-[var(--color-border-hover)]'
+          }`}
+      >
+        <button
+          onClick={(e) => { e.stopPropagation(); onEdit(); }}
+          className="absolute right-2 top-2 z-10 rounded bg-black/40 p-1 text-[var(--color-text-muted)] opacity-0 transition-opacity group-hover:opacity-100 hover:text-[var(--color-text-primary)]"
+        >
+          <EditIcon className="h-3 w-3" />
+        </button>
+        <div
+          onClick={(e) => { e.stopPropagation(); onClick(); }}
+          className="mb-3 flex aspect-[4/3] w-full cursor-pointer items-center justify-center rounded-lg bg-white p-4 text-center transition-transform hover:scale-[1.03] active:scale-[0.98]"
+        >
+          <span className="text-sm font-black whitespace-pre-line text-black" style={{ fontFamily: "'Sora', sans-serif" }}>
+            {scene.thumbnail}
+          </span>
+        </div>
+        <p className={`text-center text-xs font-black uppercase tracking-widest ${isActive ? 'text-[var(--color-accent-secondary)]' : 'text-[var(--color-text-primary)]'}`}>
+          {scene.title.toLowerCase()} title
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function SceneEditor({ story, onBack }: SceneEditorProps) {
   const [activeSceneId, setActiveSceneId] = useState<string>('scene-1');
   const [selectedPathIds, setSelectedPathIds] = useState<string[]>(['scene-1']);
@@ -497,8 +604,20 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
           </p>
         </div>
 
-        <div className="flex items-center justify-center p-[200px] min-h-[1500px] min-w-[2000px]">
-          <div className="flex flex-col items-center gap-16 lg:flex-row lg:items-center">
+        <div className="relative p-[300px] min-h-[1500px] min-w-[2500px]">
+          {/* Global Connection Layer */}
+          <svg className="pointer-events-none absolute inset-0 z-0 h-full w-full">
+            <Connection fromId={scenes[0].id} toId={scenes[1].id} isActive={isPathActive(scenes[0].id, scenes[1].id)} containerRef={canvasRef} />
+            <Connection fromId={scenes[0].id} toId={scenes[2].id} isActive={isPathActive(scenes[0].id, scenes[2].id)} containerRef={canvasRef} />
+
+            <Connection fromId={scenes[1].id} toId={scenes[3].id} isActive={isPathActive(scenes[1].id, scenes[3].id)} containerRef={canvasRef} />
+            <Connection fromId={scenes[1].id} toId={scenes[4].id} isActive={isPathActive(scenes[1].id, scenes[4].id)} containerRef={canvasRef} />
+
+            <Connection fromId={scenes[2].id} toId={scenes[5].id} isActive={isPathActive(scenes[2].id, scenes[5].id)} containerRef={canvasRef} />
+            <Connection fromId={scenes[2].id} toId={scenes[6].id} isActive={isPathActive(scenes[2].id, scenes[6].id)} containerRef={canvasRef} />
+          </svg>
+
+          <div className="relative z-10 flex flex-col items-center gap-16 lg:flex-row lg:items-center">
 
             {/* Level 1: Scene 1 */}
             <SceneNode
@@ -510,17 +629,14 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
               onEdit={() => handleEditScene(scenes[0])}
             />
 
-            {/* Level 1 -> 2 Arrows */}
-            <div className="hidden lg:flex flex-col gap-56 py-10">
-              <ArrowSvg isActive={isPathActive(scenes[0].id, scenes[1].id)} />
-              <ArrowSvg isActive={isPathActive(scenes[0].id, scenes[2].id)} />
-            </div>
+            {/* Spacer for Level 1 -> 2 */}
+            <div className="hidden lg:block w-32" />
 
             {/* Branches Area */}
-            <div className="flex flex-col gap-32">
+            <div className="flex flex-col gap-48">
 
               {/* Branch A (Scene 2.1 & descendants) */}
-              <div className="flex items-center gap-16">
+              <div className="flex items-center gap-32">
                 <SceneNode
                   scene={scenes[1]}
                   isActive={activeSceneId === scenes[1].id}
@@ -530,12 +646,9 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
                   onEdit={() => handleEditScene(scenes[1])}
                 />
 
-                <div className="hidden lg:flex flex-col gap-24">
-                  <ArrowSvg isActive={isPathActive(scenes[1].id, 'scene-3-1')} />
-                  <ArrowSvg isActive={isPathActive(scenes[1].id, 'scene-3-2')} />
-                </div>
+                <div className="hidden lg:block w-24" />
 
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-12">
                   <SceneNode
                     scene={scenes[3]}
                     isActive={activeSceneId === scenes[3].id}
@@ -556,7 +669,7 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
               </div>
 
               {/* Branch B (Scene 2.2 & descendants) */}
-              <div className="flex items-center gap-16">
+              <div className="flex items-center gap-32">
                 <SceneNode
                   scene={scenes[2]}
                   isActive={activeSceneId === scenes[2].id}
@@ -566,12 +679,9 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
                   onEdit={() => handleEditScene(scenes[2])}
                 />
 
-                <div className="hidden lg:flex flex-col gap-24">
-                  <ArrowSvg isActive={isPathActive(scenes[2].id, 'scene-3-3')} />
-                  <ArrowSvg isActive={isPathActive(scenes[2].id, 'scene-3-4')} />
-                </div>
+                <div className="hidden lg:block w-24" />
 
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-12">
                   <SceneNode
                     scene={scenes[5]}
                     isActive={activeSceneId === scenes[5].id}
@@ -727,64 +837,5 @@ export default function SceneEditor({ story, onBack }: SceneEditorProps) {
         </div>
       )}
     </div >
-  );
-}
-
-function SceneNode({ scene, isActive, isLocked, onClick, onSelect, onEdit }: { scene: Scene, isActive: boolean, isLocked: boolean, onClick: () => void, onSelect: () => void, onEdit: () => void }) {
-  return (
-    <div
-      onClick={(e) => {
-        if (!isLocked) onSelect();
-      }}
-      className={`group relative flex flex-col items-center animate-[card-enter] ${isLocked ? 'opacity-40 grayscale cursor-not-allowed' : 'cursor-pointer'}`}
-    >
-      {/* Locked Overlay Icon */}
-      {isLocked && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center">
-          <div className="rounded-full bg-black/60 p-3 backdrop-blur-sm border border-white/20">
-            <LockIcon className="h-8 w-8 text-white" />
-          </div>
-        </div>
-      )}
-
-      {/* Selection Glow */}
-      <div className={`absolute -inset-4 rounded-2xl blur-xl transition-all duration-500 ${isActive ? 'bg-[var(--color-accent-primary)]/20' : 'bg-transparent'}`} />
-
-      <div
-        onClick={onSelect}
-        className={`relative w-48 overflow-hidden rounded-xl border p-4 transition-all duration-300 ${isActive
-          ? 'border-[var(--color-accent-primary)] bg-[var(--color-bg-card)]'
-          : 'border-[var(--color-border-default)] bg-[var(--color-bg-secondary)] hover:border-[var(--color-border-hover)]'
-          }`}
-      >
-        <button
-          onClick={(e) => { e.stopPropagation(); onEdit(); }}
-          className="absolute right-2 top-2 z-10 rounded bg-black/40 p-1 text-[var(--color-text-muted)] opacity-0 transition-opacity group-hover:opacity-100 hover:text-[var(--color-text-primary)]"
-        >
-          <EditIcon className="h-3 w-3" />
-        </button>
-
-        <div
-          onClick={(e) => { e.stopPropagation(); onClick(); }}
-          className="mb-3 flex aspect-[4/3] w-full cursor-pointer items-center justify-center rounded-lg bg-white p-4 text-center transition-transform hover:scale-[1.03] active:scale-[0.98]"
-        >
-          <span className="text-sm font-black whitespace-pre-line text-black" style={{ fontFamily: "'Sora', sans-serif" }}>
-            {scene.thumbnail}
-          </span>
-        </div>
-
-        <p className={`text-center text-xs font-black uppercase tracking-widest ${isActive ? 'text-[var(--color-accent-secondary)]' : 'text-[var(--color-text-primary)]'}`}>
-          {scene.title.toLowerCase()} title
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function ArrowSvg({ isActive }: { isActive?: boolean }) {
-  return (
-    <svg className={`h-10 w-24 transition-colors duration-500 ${isActive ? 'text-[var(--color-accent-rose)]' : 'text-[var(--color-border-default)]'}`} viewBox="0 0 96 40" fill="none">
-      <path d="M0 20 H90 M80 10 L90 20 L80 30" stroke="currentColor" strokeWidth="2" />
-    </svg>
   );
 }
