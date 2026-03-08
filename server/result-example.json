@@ -1,0 +1,427 @@
+{
+  "session_id": "bcef6eca-80bb-4db7-8a51-b5027d3e84b0",
+  "status": "complete",
+  "questions": null,
+  "storyboard": {
+    "story_id": "77de1a51-7610-449e-a57b-a1549f030f24",
+    "title": "Marcus Cole visits the...",
+    "actors": [
+      {
+        "actor_id": "actor_001",
+        "name": "Marcus Cole",
+        "physical_description": "A man in his mid-30s with a tall, lean, and athletic build. He has deep mahogany skin with a smooth texture. His hair is kept in a short, neat crop, and he has a well-groomed, light stubble along his jawline. His eyes are dark brown, expressive, and often narrowed in concentration. He stands approximately 6 feet 2 inches tall.",
+        "outfit_description": "A well-worn, weathered brown leather bomber jacket with visible scuffs and a matte finish. Underneath, he wears a charcoal grey ribbed henley shirt with three buttons at the neck. He wears dark indigo denim jeans that show slight wear at the knees and sturdy, mud-dusted black leather hiking boots.",
+        "anchor_image_url": null
+      },
+      {
+        "actor_id": "actor_002",
+        "name": "Elena Voss",
+        "physical_description": "A woman in her late 40s with a pale, porcelain complexion and sharp, angular facial features. Her most striking feature is her dark raven hair, which is heavily streaked with silver and pulled back into a tight, severe bun at the nape of her neck. She has piercing, cold grey eyes and thin, expressive lips. Her posture is unnervingly still and upright.",
+        "outfit_description": "A high-neck black cashmere turtleneck sweater that fits snugly, emphasizing her gaunt frame. She wears heavy-duty olive green cargo pants with multiple pockets and a reinforced waistband. On her feet are thick wool socks peeking out from dark brown, lace-up tactical-style boots.",
+        "anchor_image_url": null
+      }
+    ],
+    "themes": [
+      {
+        "theme_id": "theme_001",
+        "location_name": "Cabin Exterior - Remote Pacific Northwest Forest",
+        "atmosphere": "Dense, towering evergreens dripping with moisture. A thick, low-hanging fog swallows the base of the trees. The cabin is weathered cedar wood, moss-covered and isolated. Autumn leaves in muted, decaying browns and deep oranges carpet the sodden ground. The air feels heavy and damp, emphasizing a sense of being miles from civilization.",
+        "lighting": "Deeply overcast and flat daylight, cold blue-grey color palette, filtered through heavy mist and dense forest canopy. Natural light is minimal, creating a desaturated, 'Nordic noir' aesthetic.",
+        "reference_image_url": null
+      },
+      {
+        "theme_id": "theme_002",
+        "location_name": "Cabin Interior - Living Room / Interview Area",
+        "atmosphere": "Claustrophobic and cramped. Low timber-beamed ceilings and walls lined with dusty bookshelves and old maps. Mid-century rustic furniture that feels lived-in but neglected. There is a sense of being trapped; windows are small and blurred by streaks of rain and condensation. Shadows gather in every corner, creating a visual language of secrets and hidden motives.",
+        "lighting": "Low-key and moody. The primary light source is a flickering, weak amber light from a stone fireplace, contrasted against the cold, blueish light bleeding through the small windows. Harsh shadows across faces, emphasizing sharp features and tense expressions.",
+        "reference_image_url": null
+      },
+      {
+        "theme_id": "theme_003",
+        "location_name": "Cabin Interior - Kitchenette Nook",
+        "atmosphere": "Stark and functional. Utensils and cast-iron pans hang from walls like implements of a different nature. A small, stained wooden table sits between Marcus and Elena. The space is tight, forcing a physical proximity that heightens the psychological tension. A single window looks out into the impenetrable grey fog.",
+        "lighting": "A single, warm-toned hanging bulb above the table casting steep, dramatic shadows downward. The surrounding room remains in near-total darkness, focusing all visual attention on the micro-expressions of the characters.",
+        "reference_image_url": null
+      },
+      {
+        "theme_id": "theme_004",
+        "location_name": "Cabin Porch - Transition Zone",
+        "atmosphere": "A narrow, covered wooden deck with a rusted screen door. Rain lashes against the steps. The boundary between the claustrophobic interior and the hostile, vast forest. A feeling of exposed vulnerability for anyone attempting to flee.",
+        "lighting": "Twilight or heavy storm-light. Blue-hour tones dominate, with a sliver of warm orange light spilling out from the open cabin door, cutting through the heavy rain and mist.",
+        "reference_image_url": null
+      }
+    ],
+    "scenes": [
+      {
+        "scene_id": "scene_001",
+        "title": "The Threshold of Secrets",
+        "segments": [
+          {
+            "segment_index": 1,
+            "visual_prompt": "[Cabin Exterior - Remote Pacific Northwest Forest] [Deeply overcast, cold blue-grey light]. Marcus Cole (tall, mahogany skin, brown leather bomber jacket) stands before a weathered cedar cabin, clutching a digital recorder. Thick fog swallows the base of the towering evergreens around him. Suspenseful, atmospheric opening.",
+            "camera_movement": "wide establishing shot",
+            "action_description": "Marcus arrives at the isolated cabin as the fog rolls in heavily from the forest.",
+            "dialogue": [],
+            "audio": {
+              "bgm": "Low suspenseful drone with subtle strings",
+              "sfx": "Wind whistling through pines, distant raven caw, boots crunching on wet leaves"
+            }
+          },
+          {
+            "segment_index": 2,
+            "visual_prompt": "[Cabin Porch - Transition Zone] [Blue-hour tones with warm orange light from door]. Elena Voss (pale, silver-streaked raven hair in a tight bun, black turtleneck) opens the rusted screen door. She stares at Marcus with a cold, piercing gaze. Rain begins to lash against the wooden steps. Tense confrontation.",
+            "camera_movement": "slow push in on Elena's face",
+            "action_description": "Elena greets Marcus at the door, her presence intimidating and still.",
+            "dialogue": [
+              "Elena Voss: You're late, Mr. Cole. The woods don't like to be kept waiting."
+            ],
+            "audio": {
+              "bgm": "Dissonant low-frequency pulse",
+              "sfx": "Rusted screen door creaking, heavy rain starting to fall on the porch roof"
+            }
+          },
+          {
+            "segment_index": 3,
+            "visual_prompt": "[Cabin Interior - Living Room] [Flickering amber fireplace light, harsh shadows]. Marcus and Elena sit opposite each other in rustic chairs. The room is cramped with dusty bookshelves. Marcus sets his recorder on a small table. Thick, claustrophobic atmosphere.",
+            "camera_movement": "static medium two-shot",
+            "action_description": "They settle into the living room, the interview beginning under the weight of the storm.",
+            "dialogue": [
+              "Marcus Cole: I appreciate you seeing me, Elena. Let's start with the night of the 14th.",
+              "Elena Voss: Words are dangerous things in a house like this."
+            ],
+            "audio": {
+              "bgm": "Subtle, rhythmic ticking sound in the background",
+              "sfx": "Crackling fireplace, rain lashing against the window glass"
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "Press her on the timeline discrepancy",
+            "target_scene_id": "scene_002"
+          },
+          {
+            "text": "Try to build rapport and trust",
+            "target_scene_id": "scene_003"
+          }
+        ],
+        "is_ending": false
+      },
+      {
+        "scene_id": "scene_002",
+        "title": "The Cracks Appear",
+        "segments": [
+          {
+            "segment_index": 1,
+            "visual_prompt": "[Cabin Interior - Kitchenette Nook] [Warm-toned hanging bulb, steep dramatic shadows]. Marcus (charcoal grey henley) leans forward, pointing at his notes. Elena (black turtleneck) holds a white porcelain mug with both hands. Her face is a mask of calm. Psychological tension.",
+            "camera_movement": "over-the-shoulder shot from Marcus to Elena",
+            "action_description": "Marcus points out a specific contradiction in Elena's story about the disappearance.",
+            "dialogue": [
+              "Marcus Cole: Your statement says you were home by ten, but the park gate logs show your car leaving at midnight."
+            ],
+            "audio": {
+              "bgm": "High-pitched, receding violin note",
+              "sfx": "Slight rattle of the porcelain mug against its saucer"
+            }
+          },
+          {
+            "segment_index": 2,
+            "visual_prompt": "[Cabin Interior - Kitchenette Nook] [Stark overhead light]. Close-up of Elena’s hands tightening so hard on the porcelain mug that her knuckles turn white. Her eyes dart briefly to the window before locking back onto Marcus. Chilling composure.",
+            "camera_movement": "extreme close-up on hands and then eyes",
+            "action_description": "Elena's composure flickers momentarily before she regains control.",
+            "dialogue": [
+              "Elena Voss: Logs can be faked, Mr. Cole. The forest, however, keeps a much more honest record."
+            ],
+            "audio": {
+              "bgm": "Rising industrial hum",
+              "sfx": "A sudden, loud crack of thunder outside"
+            }
+          },
+          {
+            "segment_index": 3,
+            "visual_prompt": "[Cabin Interior - Kitchenette Nook] [Deep shadows]. Elena leans into the pool of light from the hanging bulb. Her expression is unnervingly still. Marcus looks visibly unsettled by her calm demeanor. High-stakes standoff.",
+            "camera_movement": "slow pull back to show both characters",
+            "action_description": "Elena offers a chillingly calm alternative explanation that leaves Marcus reeling.",
+            "dialogue": [
+              "Elena Voss: Perhaps the car left, but I didn't. Have you considered who else has my keys?"
+            ],
+            "audio": {
+              "bgm": "Ominous synth pad",
+              "sfx": "The sound of rain intensifying into a roar"
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "Openly accuse her of lying",
+            "target_scene_id": "scene_004"
+          },
+          {
+            "text": "Secretly search the room while she's distracted",
+            "target_scene_id": "scene_005"
+          }
+        ],
+        "is_ending": false
+      },
+      {
+        "scene_id": "scene_003",
+        "title": "Whispers of the Woods",
+        "segments": [
+          {
+            "segment_index": 1,
+            "visual_prompt": "[Cabin Interior - Living Room] [Soft, flickering amber light from fireplace]. Elena sits back, her posture softening slightly. Marcus watches her, his recorder forgotten. The shadows in the corner of the room seem to dance. Haunting, folktale atmosphere.",
+            "camera_movement": "medium shot of Elena with fireplace in background",
+            "action_description": "Elena begins to tell a story about the local legends of the forest.",
+            "dialogue": [
+              "Elena Voss: People think they get lost. They don't. The hunger of these trees... it calls to the hollow parts of a soul."
+            ],
+            "audio": {
+              "bgm": "Gentle, melancholy piano melody",
+              "sfx": "Soft hiss of the fire, wind howling in the chimney"
+            }
+          },
+          {
+            "segment_index": 2,
+            "visual_prompt": "[Cabin Interior - Living Room] [Harsh shadows, low angle]. Marcus shivers, adjusting his leather jacket. He looks toward the small, condensation-streaked window. The fog outside is pressed against the glass like a physical weight. Psychological dread.",
+            "camera_movement": "low angle looking up at Marcus",
+            "action_description": "Marcus feels a chill as he realizes the depth of Elena's obsession with the woods.",
+            "dialogue": [
+              "Marcus Cole: You're talking about it like it's alive.",
+              "Elena Voss: Because it is, Marcus. And it hasn't fed in a long time."
+            ],
+            "audio": {
+              "bgm": "Ethereal, haunting choral textures",
+              "sfx": "A branch scraping against the cabin wall like a fingernail"
+            }
+          },
+          {
+            "segment_index": 3,
+            "visual_prompt": "[Cabin Interior - Living Room] [Flickering light, extreme close-up]. Elena’s eyes reflect the firelight. She offers a small, cryptic smile. Marcus stares at her, realization dawning that she is far more dangerous than he thought. Cliffhanger.",
+            "camera_movement": "tight close-up on Elena's eyes",
+            "action_description": "Elena finishes her story, leaving the truth obscured by myth.",
+            "dialogue": [
+              "Elena Voss: Do you feel it now? The weight of all those eyes in the dark?"
+            ],
+            "audio": {
+              "bgm": "Piano melody fades to a single, unsettling note",
+              "sfx": "A distant, muffled thud from somewhere deep in the house"
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "Mention the physical evidence he brought",
+            "target_scene_id": "scene_002"
+          },
+          {
+            "text": "Accept her tea and keep listening",
+            "target_scene_id": "scene_005"
+          }
+        ],
+        "is_ending": false
+      },
+      {
+        "scene_id": "scene_004",
+        "title": "The Final Confrontation",
+        "segments": [
+          {
+            "segment_index": 1,
+            "visual_prompt": "[Cabin Interior - Living Room] [Dim, strobing fireplace light]. Elena stands abruptly, her face twisted in a cold snarl. She grabs a heavy iron fireplace poker. Marcus stands, backing away toward the kitchen. Sudden shift to violence.",
+            "camera_movement": "handheld follow on Elena's movement",
+            "action_description": "The interview turns violent as Elena reveals her true intentions.",
+            "dialogue": [
+              "Marcus Cole: Put that down, Elena! I just want the truth!",
+              "Elena Voss: The truth is buried. And now, so are you."
+            ],
+            "audio": {
+              "bgm": "Fast-paced, aggressive percussion",
+              "sfx": "Iron poker clattering against stone, chair scraping floor"
+            }
+          },
+          {
+            "segment_index": 2,
+            "visual_prompt": "[Cabin Interior - Living Room] [High contrast, shadows]. Elena blocks the main door, the poker held like a weapon. Marcus is trapped between the bookshelves and the fireplace. The room feels smaller than ever. Desperate struggle.",
+            "camera_movement": "wide shot showing the distance between them",
+            "action_description": "Elena cuts off Marcus's only exit, stalking him around the small room.",
+            "dialogue": [
+              "Elena Voss: You should have stayed in the city, Mr. Cole."
+            ],
+            "audio": {
+              "bgm": "Screeching strings and heavy bass hits",
+              "sfx": "Marcus's heavy breathing, rain pounding the roof"
+            }
+          },
+          {
+            "segment_index": 3,
+            "visual_prompt": "[Cabin Interior - Living Room] [Low-key, flickering light]. Marcus looks around frantically for a weapon or an escape. Elena raises the poker, her shadow looming massive against the timber walls. Peak life-or-death tension.",
+            "camera_movement": "slow push in on Marcus's panicked face",
+            "action_description": "Marcus realizes he is in a fight for his life in the dim light.",
+            "dialogue": [
+              "Marcus Cole: Wait! We can talk about this!"
+            ],
+            "audio": {
+              "bgm": "Sudden silence then a loud, booming drum hit",
+              "sfx": "The sound of a heavy blow hitting wood"
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "Fight for the exit",
+            "target_scene_id": "scene_006"
+          },
+          {
+            "text": "Try to bargain for his life",
+            "target_scene_id": "scene_007"
+          }
+        ],
+        "is_ending": false
+      },
+      {
+        "scene_id": "scene_005",
+        "title": "The Hidden Truth",
+        "segments": [
+          {
+            "segment_index": 1,
+            "visual_prompt": "[Cabin Interior - Kitchenette Nook] [Single warm-toned bulb, dark background]. Marcus is alone. He frantically searches a cabinet while Elena is heard clinking dishes in the other room. He finds a loose floorboard. Tense stealth.",
+            "camera_movement": "handheld close-up on Marcus's hands",
+            "action_description": "Marcus discovers a hidden compartment while Elena is distracted.",
+            "dialogue": [],
+            "audio": {
+              "bgm": "Rapid, heartbeat-like synth pulse",
+              "sfx": "Muted clinking of ceramic from the other room, wood creaking"
+            }
+          },
+          {
+            "segment_index": 2,
+            "visual_prompt": "[Cabin Interior - Kitchenette Nook] [Dramatic down-lighting]. Marcus pulls out a collection of items: a blood-stained watch, a driver's license, and a lock of hair. His eyes widen in horror. Evidence of the crime.",
+            "camera_movement": "top-down shot of the hidden items",
+            "action_description": "Marcus realizes he has found the victim's personal effects.",
+            "dialogue": [
+              "Marcus Cole: Oh god... she didn't just watch. She kept them."
+            ],
+            "audio": {
+              "bgm": "Low, distorted brass notes",
+              "sfx": "Paper rustling, Marcus's sharp intake of breath"
+            }
+          },
+          {
+            "segment_index": 3,
+            "visual_prompt": "[Cabin Interior - Kitchenette Nook] [Dark shadows]. A long, thin shadow falls over Marcus and the items. He freezes. Behind him, Elena stands in the doorway, her face unreadable in the dark. Terrifying realization.",
+            "camera_movement": "static shot focused on the floor as the shadow grows",
+            "action_description": "Elena returns and catches Marcus with the incriminating evidence.",
+            "dialogue": [
+              "Elena Voss: Curiosities can be very heavy, can't they, Marcus?"
+            ],
+            "audio": {
+              "bgm": "Sudden, sharp orchestral stinger",
+              "sfx": "A single, loud floorboard creak directly behind Marcus"
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "Confront her with the items",
+            "target_scene_id": "scene_004"
+          },
+          {
+            "text": "Slip out the back window into the fog",
+            "target_scene_id": "scene_006"
+          }
+        ],
+        "is_ending": false
+      },
+      {
+        "scene_id": "scene_006",
+        "title": "Lost in the Mist",
+        "segments": [
+          {
+            "segment_index": 1,
+            "visual_prompt": "[Cabin Porch - Transition Zone] [Heavy storm-light, blue-hour tones]. Marcus bursts through the screen door, stumbling into the freezing rain. He doesn't look back. The cabin light flickers behind him. High-speed escape.",
+            "camera_movement": "handheld follow, shaky and fast",
+            "action_description": "Marcus flees the cabin into the hostile environment of the forest.",
+            "dialogue": [],
+            "audio": {
+              "bgm": "Frantic, chaotic percussion and strings",
+              "sfx": "Door slamming, heavy breathing, splashing in mud"
+            }
+          },
+          {
+            "segment_index": 2,
+            "visual_prompt": "[Cabin Exterior - Remote Pacific Northwest Forest] [Dense fog, cold blue-grey palette]. Marcus runs through the trees, branches catching on his leather jacket. The fog is so thick he can barely see his own hands. Disorienting chase.",
+            "camera_movement": "POV shot running through brush",
+            "action_description": "Marcus becomes hopelessly lost in the dense, fog-shrouded forest.",
+            "dialogue": [
+              "Marcus Cole: Help! Is anyone there?!"
+            ],
+            "audio": {
+              "bgm": "Dissonant, swirling soundscape",
+              "sfx": "Twigs snapping, rain hitting leaves, distant, echoing laughter"
+            }
+          },
+          {
+            "segment_index": 3,
+            "visual_prompt": "[Cabin Exterior - Remote Pacific Northwest Forest] [Near-total darkness and fog]. Marcus stops, gasping for air. He looks around; every direction looks the same. A silver-streaked figure appears briefly in the fog behind him. Finality.",
+            "camera_movement": "slow 360-degree pan of the fog",
+            "action_description": "Marcus realizes he is being hunted in a landscape he cannot escape.",
+            "dialogue": [
+              "Elena Voss: (Voice echoing) The forest always gets its due."
+            ],
+            "audio": {
+              "bgm": "Music fades to a low, ominous hum",
+              "sfx": "Silence, then the sound of a single footstep on a wet leaf"
+            }
+          }
+        ],
+        "choices": [],
+        "is_ending": true
+      },
+      {
+        "scene_id": "scene_007",
+        "title": "The Devil's Bargain",
+        "segments": [
+          {
+            "segment_index": 1,
+            "visual_prompt": "[Cabin Interior - Living Room] [Dying fireplace embers, deep orange glow]. Marcus is on his knees, hands raised. Elena stands over him, the poker lowered but still in hand. A heavy, moral weight hangs in the air. Desperate negotiation.",
+            "camera_movement": "low angle looking up at Elena",
+            "action_description": "Marcus desperately bargains for his life, promising his silence.",
+            "dialogue": [
+              "Marcus Cole: No one has to know. The truth dies here. Just let me go."
+            ],
+            "audio": {
+              "bgm": "Tense, low-volume cello",
+              "sfx": "Hissing of the dying fire, wind rattling the window"
+            }
+          },
+          {
+            "segment_index": 2,
+            "visual_prompt": "[Cabin Exterior - Remote Pacific Northwest Forest] [Cold blue-grey morning light]. Marcus walks toward his car, his movements stiff. He looks back at the cabin one last time. Elena stands on the porch, a dark silhouette against the wood. Somber resolution.",
+            "camera_movement": "wide shot of Marcus walking to his car",
+            "action_description": "Marcus leaves the cabin, alive but forever changed by the encounter.",
+            "dialogue": [],
+            "audio": {
+              "bgm": "Melancholy, hollow synth melody",
+              "sfx": "Car door opening, engine turnover, tires on gravel"
+            }
+          },
+          {
+            "segment_index": 3,
+            "visual_prompt": "[Inside Car] [Natural, flat daylight]. Marcus drives away, looking in the rearview mirror. He reaches for his passenger seat but finds it empty. His recorder is gone. His face pales as the realization hits. Dark ending.",
+            "camera_movement": "close-up on Marcus in the rearview mirror",
+            "action_description": "Marcus realizes he left the evidence behind, becoming Elena's silent accomplice.",
+            "dialogue": [
+              "Marcus Cole: What have I done?"
+            ],
+            "audio": {
+              "bgm": "Dark, swelling orchestral finale",
+              "sfx": "Wind noise through the car window, rain stopping"
+            }
+          }
+        ],
+        "choices": [],
+        "is_ending": true
+      }
+    ]
+  },
+  "error": null
+}
