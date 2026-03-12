@@ -25,6 +25,8 @@ class Segment(BaseModel):
     action_description: str = Field(description="What happens in this ~8-second segment")
     dialogue: list[str] = Field(description="Character dialogue lines, e.g. ['Marcus: Look at these markings.', 'Elena: What markings?']")
     audio: AudioDesign = Field(description="Background music and sound effects design")
+    actor_ids: list[str] = Field(default_factory=list, description="Up to 2 actor IDs whose reference images appear in this segment")
+    theme_id: Optional[str] = Field(default=None, description="Theme/location ID whose reference image anchors this segment's setting")
     video_gcs_uri: Optional[str] = Field(default=None, description="GCS URI (gs://...) written by Veo; used as extend source for the next segment")
     video_url: Optional[str] = Field(default=None, description="Signed HTTPS URL for frontend video playback; regenerated on each session fetch")
 

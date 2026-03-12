@@ -154,9 +154,8 @@ class storyBoardService:
         """
         Run the full production pipeline:
         1. Parallel: Screenwriter + Casting + Production Designer
-        2. Sequential: Segment Engineer
+        2. Parallel: Segment Engineer + Generate thumbnail and persist to Firestore
         3. Assemble StoryBoard
-        4. Generate thumbnail and persist to Firestore
         """
         specialist_payload = json.dumps(
             {

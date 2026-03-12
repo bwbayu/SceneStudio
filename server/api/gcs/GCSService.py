@@ -140,6 +140,21 @@ class GCSStorageService:
         blob.upload_from_string(data, content_type=content_type)
 
     # ------------------------------------------------------------------
+    # Download methods (for fetching reference images)
+    # ------------------------------------------------------------------
+
+    async def download_blob_bytes(self, object_path: str) -> bytes:
+        """Download a GCS object and return its raw bytes."""
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None, partial(self._sync_download, object_path)
+        )
+
+    def _sync_download(self, object_path: str) -> bytes:
+        blob = self._bucket.blob(object_path)
+        return blob.download_as_bytes()
+
+    # ------------------------------------------------------------------
     # Signed URL generation (sync — cryptographic signing, no network I/O)
     # ------------------------------------------------------------------
 
@@ -160,6 +175,13 @@ class GCSStorageService:
             version="v4",
         )
 
+    def object_path_from_uri(self, gcs_uri: str) -> str:
+        """Extract the object path from a gs://bucket/path URI."""
+        prefix = f"gs://{self._bucket_name}/"
+        if not gcs_uri.startswith(prefix):
+            raise ValueError(f"URI {gcs_uri!r} does not belong to bucket {self._bucket_name!r}")
+        return gcs_uri[len(prefix):]
+
     def get_signed_url_from_gcs_uri(
         self,
         gcs_uri: str,
@@ -168,10 +190,7 @@ class GCSStorageService:
         """
         Convenience wrapper: accepts a gs://bucket/path URI and returns a signed URL.
         """
-        prefix = f"gs://{self._bucket_name}/"
-        if not gcs_uri.startswith(prefix):
-            raise ValueError(f"URI {gcs_uri!r} does not belong to bucket {self._bucket_name!r}")
-        object_path = gcs_uri[len(prefix):]
+        object_path = self.object_path_from_uri(gcs_uri)
         return self.get_signed_url(object_path, expiry)
 
     # ------------------------------------------------------------------

@@ -18,12 +18,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.story_board.storyBoardRoute import _pipeline_tasks, router as storyBoardRoute
 from api.story_board.storyBoardConsumerRoute import router as storyBoardConsumerRoute
 from api.actor.actorRoute import router as actorRoute
+from api.scene.sceneRoute import _scene_tasks, router as sceneRoute
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     yield
-    # Cancel any running pipeline tasks on shutdown
+    # Cancel any running pipeline/scene tasks on shutdown
     for task in _pipeline_tasks.values():
+        task.cancel()
+    for task in _scene_tasks.values():
         task.cancel()
 
 
@@ -45,6 +48,7 @@ app.add_middleware(
 app.include_router(storyBoardRoute, prefix="/api")
 app.include_router(storyBoardConsumerRoute, prefix="/api")
 app.include_router(actorRoute, prefix="/api")
+app.include_router(sceneRoute, prefix="/api")
 
 @app.get("/health")
 async def health():

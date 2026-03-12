@@ -5,3 +5,4 @@ __pycache__
 /static
 /temp
 /keys
+test_*
