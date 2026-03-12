@@ -179,6 +179,7 @@ class FirestoreService:
             docs.append(
                 {
                     "story_id": data.get("story_id"),
+                    "session_id": data.get("session_id"),
                     "title": data.get("title"),
                     "creator_id": data.get("creator_id"),
                     "status": data.get("status"),

@@ -16,6 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.story_board.storyBoardRoute import _pipeline_tasks, router as storyBoardRoute
 from api.story_board.storyBoardConsumerRoute import router as storyBoardConsumerRoute
 from api.actor.actorRoute import router as actorRoute
+from api.theme.themeRoute import router as themeRoute
 
 load_dotenv()
 
@@ -45,6 +46,7 @@ app.add_middleware(
 app.include_router(storyBoardRoute, prefix="/api")
 app.include_router(storyBoardConsumerRoute, prefix="/api")
 app.include_router(actorRoute, prefix="/api")
+app.include_router(themeRoute, prefix="/api")
 
 @app.get("/health")
 async def health():
