@@ -19,6 +19,7 @@ from api.story_board.storyBoardRoute import _pipeline_tasks, router as storyBoar
 from api.story_board.storyBoardConsumerRoute import router as storyBoardConsumerRoute
 from api.actor.actorRoute import router as actorRoute
 from api.scene.sceneRoute import _scene_tasks, router as sceneRoute
+from api.theme.themeRoute import router as themeRoute
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -49,6 +50,7 @@ app.include_router(storyBoardRoute, prefix="/api")
 app.include_router(storyBoardConsumerRoute, prefix="/api")
 app.include_router(actorRoute, prefix="/api")
 app.include_router(sceneRoute, prefix="/api")
+app.include_router(themeRoute, prefix="/api")
 
 @app.get("/health")
 async def health():
