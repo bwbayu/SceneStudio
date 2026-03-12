@@ -10,14 +10,14 @@ Endpoints:
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.story_board.storyBoardRoute import _pipeline_tasks, router as storyBoardRoute
 from api.story_board.storyBoardConsumerRoute import router as storyBoardConsumerRoute
 from api.actor.actorRoute import router as actorRoute
-
-load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

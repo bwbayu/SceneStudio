@@ -1,5 +1,4 @@
 from models import (
-    DirectorAnalysis,
     SessionResponse,
     SessionState,
 )
@@ -18,15 +17,6 @@ def _clean_json(text: str) -> str:
         cleaned = "\n".join(lines[start:end])
     return cleaned
 
-
-def _derive_title(analysis: DirectorAnalysis) -> str:
-    """Derive a story title from the Director's narrative summary."""
-    # Use the first few words of the narrative summary as the title base,
-    # or fall back to genre + setting
-    summary_words = analysis.narrative_summary.split()
-    if len(summary_words) >= 4:
-        return " ".join(summary_words[:4]).rstrip(".,;:") + "..."
-    return f"{analysis.genre.title()}: {analysis.setting}"
 
 def _get_session(session: dict[str, SessionState], session_id: str) -> SessionState:
     """Look up a session by ID from the in-memory store. Raises HTTP 404 if not found."""

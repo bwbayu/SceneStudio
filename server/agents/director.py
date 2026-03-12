@@ -31,6 +31,20 @@ Your task:
 
 4. If you have sufficient information on all points, set status to "ready" and provide a comprehensive DirectorAnalysis. The analysis will be used to brief the Screenwriter, Casting Director, and Production Designer.
 
+   The analysis MUST follow this exact structure:
+   {
+     "status": "ready",
+     "analysis": {
+       "title": string,
+       "genre": string,
+       "tone": string,
+       "setting": string,
+       "key_characters": list[string],
+       "mood": string,
+       "narrative_summary": string
+     }
+   }
+
 Be decisive. If the script gives enough context to infer missing details, do so rather than asking. Only ask when information is truly ambiguous or critical."""
 
 director_agent = LlmAgent(

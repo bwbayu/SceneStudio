@@ -61,6 +61,10 @@ class GCSStorageService:
         """Object path for a theme/location reference image."""
         return f"sessions/{session_id}/themes/{theme_id}.jpg"
 
+    def thumbnail_path(self, session_id: str) -> str:
+        """Object path for the storyboard thumbnail image."""
+        return f"sessions/{session_id}/thumbnail.jpg"
+
     def segment_output_prefix(self, session_id: str, scene_id: str, segment_index: int) -> str:
         """
         GCS prefix (with trailing slash) to pass as output_gcs_uri in a Veo generate_videos call.
@@ -108,6 +112,20 @@ class GCSStorageService:
         Returns the GCS URI (gs://...) — store this in Theme.reference_image_gcs_uri.
         """
         object_path = self.theme_image_path(session_id, theme_id)
+        await self._upload_bytes(object_path, image_bytes, content_type)
+        return self.to_gcs_uri(object_path)
+
+    async def upload_thumbnail(
+        self,
+        session_id: str,
+        image_bytes: bytes,
+        content_type: str = "image/jpeg",
+    ) -> str:
+        """
+        Upload a storyboard thumbnail image to GCS.
+        Returns the GCS URI (gs://...) — store this in StoryBoard.thumbnail_gcs_uri.
+        """
+        object_path = self.thumbnail_path(session_id)
         await self._upload_bytes(object_path, image_bytes, content_type)
         return self.to_gcs_uri(object_path)
 
@@ -167,6 +185,11 @@ class GCSStorageService:
         to ensure URLs are never expired.
         Entities without a *_gcs_uri (not yet generated) are skipped.
         """
+        if storyboard.thumbnail_gcs_uri:
+            storyboard.thumbnail_url = self.get_signed_url_from_gcs_uri(
+                storyboard.thumbnail_gcs_uri
+            )
+
         for actor in storyboard.actors:
             if actor.anchor_image_gcs_uri:
                 actor.anchor_image_url = self.get_signed_url_from_gcs_uri(

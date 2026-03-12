@@ -62,6 +62,8 @@ class StoryBoard(BaseModel):
     """The complete assembled storyboard: actors, themes, and scenes."""
     story_id: str
     title: str
+    thumbnail_gcs_uri: Optional[str] = None
+    thumbnail_url: Optional[str] = None
     actors: list[Actor]
     themes: list[Theme]
     scenes: list[Scene]
@@ -89,6 +91,7 @@ class ClarificationQuestion(BaseModel):
 
 class DirectorAnalysis(BaseModel):
     """Production analysis output from the Director agent."""
+    title: str = Field(description="Concise, evocative story title (3-6 words)")
     genre: str = Field(description="Film genre, e.g. 'psychological thriller', 'romantic drama'")
     tone: str = Field(description="Overall tone, e.g. 'dark and suspenseful', 'light-hearted'")
     setting: str = Field(description="Primary setting/world of the story")

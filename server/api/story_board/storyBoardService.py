@@ -1,6 +1,7 @@
 from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 from google.genai import types
+from google import genai
 from models import (
     DirectorOutput,
     DirectorAnalysis,
@@ -23,12 +24,16 @@ from agents import (
 )
 
 
-from api.utils import _clean_json, _derive_title, _to_response
+from api.utils import _clean_json, _to_response
 from api.firestore.firestoreService import firestore_service
+from api.gcs.GCSService import gcs_service
+from dotenv import load_dotenv
 
-import uuid, json, asyncio
+import uuid, json, asyncio, os
 
 APP_NAME = "cine-agent"
+load_dotenv()
+_genai_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 class storyBoardService:
     """
@@ -38,7 +43,7 @@ class storyBoardService:
     1. Multi-round Director clarification loop (API-level, stateless per call)
     2. Parallel execution of Screenwriter, Casting, and Production Designer agents
     3. Sequential execution of Segment Engineer after the parallel phase
-    4. Assembly of the final StoryBoard JSON
+    4. Thumbnail generation and assembly of the final StoryBoard JSON
     """
     def __init__(self):
         """Initialise the Google ADK in-memory session service used by all agent runners."""
@@ -95,6 +100,54 @@ class storyBoardService:
 
         return DirectorOutput.model_validate_json(cleaned)
 
+    async def _generate_thumbnail(
+        self, session_id: str, actors: list, themes: list, analysis: DirectorAnalysis
+    ) -> tuple[str | None, str | None]:
+        """
+        Generate a cinematic thumbnail image using Gemini Flash Image.
+        Returns (gcs_uri, signed_url), or (None, None) if generation fails.
+        """
+        first_theme = themes[0] if themes else None
+        first_actor = actors[0] if actors else None
+
+        theme_description = (
+            f"{first_theme.atmosphere}, {first_theme.lighting}" if first_theme else "cinematic setting"
+        )
+        actor_description = (
+            f"{first_actor.physical_description}, {first_actor.outfit_description}"
+            if first_actor
+            else "dramatic protagonist"
+        )
+
+        prompt = (
+            f'Cinematic movie thumbnail for "{analysis.title}", a {analysis.genre}. '
+            f"Mood: {analysis.mood}. "
+            f"Main setting: {theme_description}. "
+            f"Main character: {actor_description}. "
+            f"Style: dramatic composition, high contrast, cinematic lighting, film poster aesthetic. "
+            f"Landscape orientation, 16:9 aspect ratio."
+        )
+
+        response = await _genai_client.aio.models.generate_content(
+            model="gemini-3.1-flash-image-preview",
+            contents=[prompt],
+        )
+
+        for part in response.parts:
+            if part.inline_data is not None:
+                image_bytes = part.inline_data.data
+                content_type = part.inline_data.mime_type or "image/jpeg"
+
+                gcs_uri = await gcs_service.upload_thumbnail(
+                    session_id=session_id,
+                    image_bytes=image_bytes,
+                    content_type=content_type,
+                )
+
+                return gcs_uri, gcs_service.get_signed_url_from_gcs_uri(gcs_uri)
+
+        return None, None
+
     async def _run_multi_agent(
         self, session: SessionState, analysis: DirectorAnalysis
     ) -> StoryBoard:
@@ -102,8 +155,8 @@ class storyBoardService:
         Run the full production pipeline:
         1. Parallel: Screenwriter + Casting + Production Designer
         2. Sequential: Segment Engineer
-        3. Assemble and return StoryBoard
-        4. Persist to Firestore
+        3. Assemble StoryBoard
+        4. Generate thumbnail and persist to Firestore
         """
         specialist_payload = json.dumps(
             {
@@ -126,7 +179,7 @@ class storyBoardService:
         casting_output = CastingOutput.model_validate_json(_clean_json(casting_raw))
         designer_output = DesignerOutput.model_validate_json(_clean_json(designer_raw))
 
-        # Phase 3: Segment Engineer fills in the video segments for each scene
+        # Phase 3: Segment Engineer + Thumbnail in parallel
         engineer_payload = json.dumps(
             {
                 "scenes": [s.model_dump() for s in scenes_output.scenes],
@@ -136,16 +189,20 @@ class storyBoardService:
             ensure_ascii=False,
         )
 
-        engineer_raw = await self._call_agent(segment_engineer_agent, engineer_payload)
+        engineer_raw, (thumb_uri, thumb_url) = await asyncio.gather(
+            self._call_agent(segment_engineer_agent, engineer_payload),
+            self._generate_thumbnail(session.session_id, casting_output.actors, designer_output.themes, analysis),
+        )
         engineer_output = SegmentEngineerOutput.model_validate_json(_clean_json(engineer_raw))
 
         # Assemble final StoryBoard
         story_id = str(uuid.uuid4())
-        title = _derive_title(analysis)
 
         storyboard = StoryBoard(
             story_id=story_id,
-            title=title,
+            title=analysis.title,
+            thumbnail_gcs_uri=thumb_uri,
+            thumbnail_url=thumb_url,
             actors=casting_output.actors,
             themes=designer_output.themes,
             scenes=engineer_output.scenes,
@@ -156,7 +213,7 @@ class storyBoardService:
             story_id=story_id,
             session_id=session.session_id,
             creator_id=session.creator_id,
-            title=title,
+            title=analysis.title,
             storyboard_data=storyboard.model_dump(),
         )
 
