@@ -22,7 +22,9 @@ if TYPE_CHECKING:
 
 BUCKET_NAME = "gemini-hackathon-8565416389"
 SIGNED_URL_EXPIRY = timedelta(hours=24)
-_CREDENTIALS_PATH = os.path.join(os.path.dirname(__file__), "keys", "gemini-hackathon.json")
+_CREDENTIALS_PATH = os.path.join(
+    os.path.dirname(__file__), "..", "..", "keys", "gemini-hackathon.json"
+)
 
 
 class GCSStorageService:
@@ -201,3 +203,5 @@ class GCSStorageService:
         if blobs:
             self._bucket.delete_blobs(blobs)
         return len(blobs)
+
+gcs_service = GCSStorageService()
