@@ -33,6 +33,35 @@ MAX_POLL_ITERATIONS = 180  # 18 minutes
 POLL_INTERVAL_SECONDS = 10
 
 
+def _build_segment_prompt(segment: Segment) -> str:
+    """
+    Combine all segment fields into a structured cinematic prompt for Veo.
+    Incorporates visual description, camera work, action, dialogue, and audio design.
+    """
+    dialogue_lines = (
+        "\n".join(segment.dialogue) if segment.dialogue else "No dialogue."
+    )
+
+    return (
+        "Generate a cinematic video scene with the description below.\n\n"
+        "SCENE / VISUAL\n"
+        f"{segment.visual_prompt}\n\n"
+        "CAMERA\n"
+        f"Camera movement and framing: {segment.camera_movement}\n\n"
+        "ACTION\n"
+        f"{segment.action_description}\n\n"
+        "DIALOGUE\n"
+        "Characters speak naturally during the scene:\n"
+        f"{dialogue_lines}\n\n"
+        "AUDIO DESIGN\n"
+        f"Background music: {segment.audio.bgm}\n"
+        f"Sound effects: {segment.audio.sfx}\n\n"
+        "OUTPUT\n"
+        "Generate a continuous video scene that visually shows the action, "
+        "includes the dialogue timing naturally, and matches the described audio atmosphere."
+    )
+
+
 async def _build_reference_images(
     segment: Segment,
     actors: list[Actor],
@@ -140,7 +169,7 @@ async def generate_scene_videos(
             )
             operation = client.models.generate_videos(
                 model=VEO_MODEL,
-                prompt=segment.visual_prompt,
+                prompt=_build_segment_prompt(segment),
                 config=config,
             )
         else:
@@ -160,7 +189,7 @@ async def generate_scene_videos(
             operation = client.models.generate_videos(
                 model=VEO_MODEL,
                 video=previous_video,
-                prompt=segment.visual_prompt,
+                prompt=_build_segment_prompt(segment),
                 config=config,
             )
 
