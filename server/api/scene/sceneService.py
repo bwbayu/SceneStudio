@@ -24,6 +24,7 @@ from dotenv import load_dotenv
 from models import Scene, Segment, Actor, Theme
 from api.gcs.GCSService import gcs_service
 from api.firestore.firestoreService import firestore_service
+from api.apixo.apixoService import generate_video_reference, generate_video_text
 
 load_dotenv()
 
@@ -153,6 +154,42 @@ def _extract_first_frame_jpeg(video_bytes: bytes) -> bytes:
     raise RuntimeError("No frames could be decoded from segment video bytes")
 
 
+async def _save_scene_thumbnail(
+    session_id: str,
+    story_id: str,
+    scene: Scene,
+    video_bytes: bytes,
+) -> None:
+    """
+    Extract the first keyframe from video_bytes, upload it as the scene thumbnail,
+    and persist the GCS URI + public URL to Firestore. Errors are logged and swallowed.
+    """
+    try:
+        loop = asyncio.get_running_loop()
+        thumbnail_jpeg = await loop.run_in_executor(
+            None, _extract_first_frame_jpeg, video_bytes
+        )
+        thumbnail_gcs_uri = await gcs_service.upload_scene_thumbnail(
+            session_id=session_id,
+            scene_id=scene.scene_id,
+            image_bytes=thumbnail_jpeg,
+        )
+        thumbnail_url = gcs_service.get_public_url_from_gcs_uri(thumbnail_gcs_uri)
+        scene.thumbnail_gcs_uri = thumbnail_gcs_uri
+        scene.thumbnail_url = thumbnail_url
+        await firestore_service.update_scene_thumbnail(
+            story_id=story_id,
+            scene_id=scene.scene_id,
+            gcs_uri=thumbnail_gcs_uri,
+            public_url=thumbnail_url,
+        )
+        logger.info("Scene %s thumbnail: %s", scene.scene_id, thumbnail_gcs_uri)
+    except Exception:
+        logger.exception(
+            "Failed to generate thumbnail for scene %s; skipping", scene.scene_id
+        )
+
+
 async def generate_scene_videos(
     session_id: str,
     story_id: str,
@@ -252,11 +289,15 @@ async def generate_scene_videos(
         )
 
         # Persist to Firestore
+        video_url = gcs_service.get_public_url_from_gcs_uri(gcs_uri)
+        segment.video_gcs_uri = gcs_uri
+        segment.video_url = video_url
         await firestore_service.update_segment_video(
             story_id=story_id,
             scene_id=scene.scene_id,
             segment_index=segment.segment_index,
             gcs_uri=gcs_uri,
+            public_url=video_url,
         )
 
         # Keep video reference for next segment's extension
@@ -267,26 +308,96 @@ async def generate_scene_videos(
             segment.segment_index, scene.scene_id, gcs_uri,
         )
 
-    # Capture first keyframe from segment 1 as the scene thumbnail
     if seg1_video_bytes is not None:
-        try:
-            loop = asyncio.get_running_loop()
-            thumbnail_jpeg = await loop.run_in_executor(
-                None, _extract_first_frame_jpeg, seg1_video_bytes
-            )
-            thumbnail_gcs_uri = await gcs_service.upload_scene_thumbnail(
-                session_id=session_id,
-                scene_id=scene.scene_id,
-                image_bytes=thumbnail_jpeg,
-            )
-            await firestore_service.update_scene_thumbnail(
-                story_id=story_id,
-                scene_id=scene.scene_id,
-                gcs_uri=thumbnail_gcs_uri,
-            )
-            scene.thumbnail_gcs_uri = thumbnail_gcs_uri
-            logger.info("Scene %s thumbnail: %s", scene.scene_id, thumbnail_gcs_uri)
-        except Exception:
-            logger.exception(
-                "Failed to generate thumbnail for scene %s; skipping", scene.scene_id
-            )
+        await _save_scene_thumbnail(session_id, story_id, scene, seg1_video_bytes)
+
+
+# ---------------------------------------------------------------------------
+# Apixo-based video generation
+# ---------------------------------------------------------------------------
+
+def _build_reference_urls(
+    segment: Segment,
+    actors: list[Actor],
+    themes: list[Theme],
+) -> list[str]:
+    """
+    Build a list of public HTTPS URLs from the GCS URIs of actor/theme images
+    referenced by this segment. Max 3 (2 actors + 1 theme).
+    Objects are publicly readable via bucket-level IAM.
+    """
+    urls: list[str] = []
+
+    for actor_id in segment.actor_ids[:2]:
+        actor = next((a for a in actors if a.actor_id == actor_id), None)
+        if actor and actor.anchor_image_gcs_uri:
+            urls.append(gcs_service.get_public_url_from_gcs_uri(actor.anchor_image_gcs_uri))
+
+    if segment.theme_id:
+        theme = next((t for t in themes if t.theme_id == segment.theme_id), None)
+        if theme and theme.reference_image_gcs_uri:
+            urls.append(gcs_service.get_public_url_from_gcs_uri(theme.reference_image_gcs_uri))
+
+    return urls
+
+
+async def generate_scene_videos_apixo(
+    session_id: str,
+    story_id: str,
+    scene: Scene,
+    actors: list[Actor],
+    themes: list[Theme],
+) -> None:
+    """
+    Generate videos for all 3 segments of a scene sequentially using Apixo Veo 3.1.
+
+    All segments: REFERENCE_2_VIDEO with actor/theme reference URLs (max 2 actors + 1 theme).
+    Falls back to TEXT_2_VIDEO if no reference images are available.
+    Persists each video_gcs_uri to Firestore after generation.
+    """
+    seg1_video_bytes: bytes | None = None
+
+    for segment in sorted(scene.segments, key=lambda s: s.segment_index):
+        logger.info(
+            "Apixo: generating segment %d of scene %s...",
+            segment.segment_index, scene.scene_id,
+        )
+
+        prompt = _build_segment_prompt(segment)
+        reference_urls = _build_reference_urls(segment, actors, themes)
+
+        logger.info(
+            "Apixo: segment %d references: actor_ids=%s theme_id=%s total=%d",
+            segment.segment_index, segment.actor_ids, segment.theme_id, len(reference_urls),
+        )
+
+        if reference_urls:
+            video_bytes = await generate_video_reference(prompt, reference_urls)
+        else:
+            video_bytes = await generate_video_text(prompt)
+
+        if segment.segment_index == 1:
+            seg1_video_bytes = video_bytes
+
+        gcs_uri = await _upload_segment_video(
+            session_id, scene.scene_id, segment.segment_index, video_bytes
+        )
+
+        video_url = gcs_service.get_public_url_from_gcs_uri(gcs_uri)
+        segment.video_gcs_uri = gcs_uri
+        segment.video_url = video_url
+        await firestore_service.update_segment_video(
+            story_id=story_id,
+            scene_id=scene.scene_id,
+            segment_index=segment.segment_index,
+            gcs_uri=gcs_uri,
+            public_url=video_url,
+        )
+
+        logger.info(
+            "Apixo: segment %d of scene %s generated: %s",
+            segment.segment_index, scene.scene_id, gcs_uri,
+        )
+
+    if seg1_video_bytes is not None:
+        await _save_scene_thumbnail(session_id, story_id, scene, seg1_video_bytes)

@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
 from models import StoryBoard
-from api.gcs.GCSService import gcs_service
 from api.firestore.firestoreService import firestore_service
 
 router = APIRouter(
@@ -25,8 +24,5 @@ async def get_storyboard(story_id: str):
         raise HTTPException(status_code=404, detail="Storyboard not found")
 
     storyboard = StoryBoard(**data)
-
-    # Regenerate signed URLs from GCS URIs
-    gcs_service.refresh_signed_urls_for_storyboard(storyboard)
 
     return storyboard.model_dump()

@@ -27,6 +27,7 @@ from agents import (
 from api.utils import _clean_json, _to_response
 from api.firestore.firestoreService import firestore_service
 from api.gcs.GCSService import gcs_service
+from api.apixo.apixoService import generate_image as apixo_generate_image
 from dotenv import load_dotenv
 
 import uuid, json, asyncio, os
@@ -105,7 +106,7 @@ class storyBoardService:
     ) -> tuple[str | None, str | None]:
         """
         Generate a cinematic thumbnail image using Gemini Flash Image.
-        Returns (gcs_uri, signed_url), or (None, None) if generation fails.
+        Returns (gcs_uri, public_url), or (None, None) if generation fails.
         """
         first_theme = themes[0] if themes else None
         first_actor = actors[0] if actors else None
@@ -144,9 +145,50 @@ class storyBoardService:
                     content_type=content_type,
                 )
 
-                return gcs_uri, gcs_service.get_signed_url_from_gcs_uri(gcs_uri)
+                return gcs_uri, gcs_service.get_public_url_from_gcs_uri(gcs_uri)
 
         return None, None
+
+    async def _generate_thumbnail_apixo(
+        self, session_id: str, actors: list, themes: list, analysis: DirectorAnalysis
+    ) -> tuple[str | None, str | None]:
+        """
+        Generate a cinematic thumbnail image using Apixo Nano Banana 2.
+        Returns (gcs_uri, public_url), or (None, None) if generation fails.
+        """
+        first_theme = themes[0] if themes else None
+        first_actor = actors[0] if actors else None
+
+        theme_description = (
+            f"{first_theme.atmosphere}, {first_theme.lighting}" if first_theme else "cinematic setting"
+        )
+        actor_description = (
+            f"{first_actor.physical_description}, {first_actor.outfit_description}"
+            if first_actor
+            else "dramatic protagonist"
+        )
+
+        prompt = (
+            f'Cinematic movie thumbnail for "{analysis.title}", a {analysis.genre}. '
+            f"Mood: {analysis.mood}. "
+            f"Main setting: {theme_description}. "
+            f"Main character: {actor_description}. "
+            f"Style: dramatic composition, high contrast, cinematic lighting, film poster aesthetic. "
+            f"Landscape orientation, 16:9 aspect ratio."
+        )
+
+        try:
+            image_bytes = await apixo_generate_image(prompt)
+            gcs_uri = await gcs_service.upload_thumbnail(
+                session_id=session_id,
+                image_bytes=image_bytes,
+                content_type="image/jpeg",
+            )
+            return gcs_uri, gcs_service.get_public_url_from_gcs_uri(gcs_uri)
+        except Exception:
+            import logging
+            logging.getLogger(__name__).exception("Apixo thumbnail generation failed")
+            return None, None
 
     async def _run_multi_agent(
         self, session: SessionState, analysis: DirectorAnalysis
@@ -190,7 +232,7 @@ class storyBoardService:
 
         engineer_raw, (thumb_uri, thumb_url) = await asyncio.gather(
             self._call_agent(segment_engineer_agent, engineer_payload),
-            self._generate_thumbnail(session.session_id, casting_output.actors, designer_output.themes, analysis),
+            self._generate_thumbnail_apixo(session.session_id, casting_output.actors, designer_output.themes, analysis),
         )
         engineer_output = SegmentEngineerOutput.model_validate_json(_clean_json(engineer_raw))
 

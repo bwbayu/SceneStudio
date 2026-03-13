@@ -10,7 +10,6 @@ from models import (
     StoryBoard,
 )
 
-from api.gcs.GCSService import gcs_service
 from api.firestore.firestoreService import firestore_service
 from api.story_board.storyBoardService import storyBoardService
 from api.utils import _to_response, _get_session
@@ -112,6 +111,4 @@ async def get_session(session_id: str) -> SessionResponse:
         # Cache back into memory
         _sessions[session_id] = session
 
-    if session.storyboard:
-        gcs_service.refresh_signed_urls_for_storyboard(session.storyboard)
     return _to_response(session)

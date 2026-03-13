@@ -1,7 +1,7 @@
 """
 GCS storage service for Cine-Agent.
 
-Handles actor/theme reference image uploads and signed URL generation.
+Handles actor/theme reference image uploads and public URL generation.
 Videos are written directly to GCS by Veo — this service provides path
 helpers for Veo output prefixes and reads back the returned URIs.
 """
@@ -10,18 +10,12 @@ from __future__ import annotations
 
 import asyncio
 import os
-from datetime import timedelta
 from functools import partial
-from typing import TYPE_CHECKING
 
 from google.cloud import storage
 from google.oauth2 import service_account
 
-if TYPE_CHECKING:
-    from models import StoryBoard
-
 BUCKET_NAME = "gemini-hackathon-8565416389"
-SIGNED_URL_EXPIRY = timedelta(hours=24)
 _CREDENTIALS_PATH = os.path.join(
     os.path.dirname(__file__), "..", "..", "keys", "gemini-hackathon.json"
 )
@@ -50,7 +44,7 @@ class GCSStorageService:
         self._bucket = self._client.bucket(bucket_name)
 
     # ------------------------------------------------------------------
-    # Path helpers (pure — no I/O)
+    # Path helpers
     # ------------------------------------------------------------------
 
     def actor_image_path(self, session_id: str, actor_id: str) -> str:
@@ -86,7 +80,7 @@ class GCSStorageService:
         return f"gs://{self._bucket_name}/{object_path}"
 
     # ------------------------------------------------------------------
-    # Upload methods (images only — Veo writes videos directly to GCS)
+    # Upload methods
     # ------------------------------------------------------------------
 
     async def upload_actor_image(
@@ -97,7 +91,7 @@ class GCSStorageService:
         content_type: str = "image/jpeg",
     ) -> str:
         """
-        Upload an actor reference image to GCS.
+        Upload an actor reference image to GCS (publicly readable).
         Returns the GCS URI (gs://...) — store this in Actor.anchor_image_gcs_uri.
         """
         object_path = self.actor_image_path(session_id, actor_id)
@@ -112,7 +106,7 @@ class GCSStorageService:
         content_type: str = "image/jpeg",
     ) -> str:
         """
-        Upload a theme/location reference image to GCS.
+        Upload a theme/location reference image to GCS (publicly readable).
         Returns the GCS URI (gs://...) — store this in Theme.reference_image_gcs_uri.
         """
         object_path = self.theme_image_path(session_id, theme_id)
@@ -158,8 +152,24 @@ class GCSStorageService:
         blob = self._bucket.blob(object_path)
         blob.upload_from_string(data, content_type=content_type)
 
+    async def upload_template_image(
+        self,
+        session_id: str,
+        filename: str,
+        image_bytes: bytes,
+        content_type: str = "image/jpeg",
+    ) -> str:
+        """
+        Upload a local template/reference image to GCS at:
+            sessions/{session_id}/templates/{filename}
+        Returns a public HTTPS URL suitable for use as an Apixo image_url.
+        """
+        object_path = f"sessions/{session_id}/templates/{filename}"
+        await self._upload_bytes(object_path, image_bytes, content_type)
+        return self.get_public_url(object_path)
+
     # ------------------------------------------------------------------
-    # Download methods (for fetching reference images)
+    # Download methods
     # ------------------------------------------------------------------
 
     async def download_blob_bytes(self, object_path: str) -> bytes:
@@ -173,27 +183,6 @@ class GCSStorageService:
         blob = self._bucket.blob(object_path)
         return blob.download_as_bytes()
 
-    # ------------------------------------------------------------------
-    # Signed URL generation (sync — cryptographic signing, no network I/O)
-    # ------------------------------------------------------------------
-
-    def get_signed_url(
-        self,
-        object_path: str,
-        expiry: timedelta = SIGNED_URL_EXPIRY,
-    ) -> str:
-        """
-        Generate a time-limited signed HTTPS URL for any GCS object.
-        Signing uses the service account private key — no extra IAM role required.
-        """
-        blob = self._bucket.blob(object_path)
-        return blob.generate_signed_url(
-            expiration=expiry,
-            method="GET",
-            credentials=self._credentials,
-            version="v4",
-        )
-
     def object_path_from_uri(self, gcs_uri: str) -> str:
         """Extract the object path from a gs://bucket/path URI."""
         prefix = f"gs://{self._bucket_name}/"
@@ -201,70 +190,12 @@ class GCSStorageService:
             raise ValueError(f"URI {gcs_uri!r} does not belong to bucket {self._bucket_name!r}")
         return gcs_uri[len(prefix):]
 
-    def get_signed_url_from_gcs_uri(
-        self,
-        gcs_uri: str,
-        expiry: timedelta = SIGNED_URL_EXPIRY,
-    ) -> str:
-        """
-        Convenience wrapper: accepts a gs://bucket/path URI and returns a signed URL.
-        """
-        object_path = self.object_path_from_uri(gcs_uri)
-        return self.get_signed_url(object_path, expiry)
+    def get_public_url(self, object_path: str) -> str:
+        """Return the simple public HTTPS URL for a GCS object (object must be public)."""
+        return f"https://storage.googleapis.com/{self._bucket_name}/{object_path}"
 
-    # ------------------------------------------------------------------
-    # Storyboard helper — refresh all signed URLs in-place
-    # ------------------------------------------------------------------
-
-    def refresh_signed_urls_for_storyboard(self, storyboard: "StoryBoard") -> None:
-        """
-        Regenerate all signed HTTPS URLs in the storyboard from the stored GCS URIs.
-        Mutates storyboard in-place. Call before every GET /api/session/{id} response
-        to ensure URLs are never expired.
-        Entities without a *_gcs_uri (not yet generated) are skipped.
-        """
-        if storyboard.thumbnail_gcs_uri:
-            storyboard.thumbnail_url = self.get_signed_url_from_gcs_uri(
-                storyboard.thumbnail_gcs_uri
-            )
-
-        for actor in storyboard.actors:
-            if actor.anchor_image_gcs_uri:
-                actor.anchor_image_url = self.get_signed_url_from_gcs_uri(
-                    actor.anchor_image_gcs_uri
-                )
-
-        for theme in storyboard.themes:
-            if theme.reference_image_gcs_uri:
-                theme.reference_image_url = self.get_signed_url_from_gcs_uri(
-                    theme.reference_image_gcs_uri
-                )
-
-        for scene in storyboard.scenes:
-            if scene.thumbnail_gcs_uri:
-                scene.thumbnail_url = self.get_signed_url_from_gcs_uri(scene.thumbnail_gcs_uri)
-            for segment in scene.segments:
-                if segment.video_gcs_uri:
-                    segment.video_url = self.get_signed_url_from_gcs_uri(segment.video_gcs_uri)
-
-    # ------------------------------------------------------------------
-    # Cleanup
-    # ------------------------------------------------------------------
-
-    async def delete_session_assets(self, session_id: str) -> int:
-        """
-        Delete all GCS objects under sessions/{session_id}/.
-        Returns the count of objects deleted.
-        """
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(
-            None, partial(self._sync_delete_prefix, f"sessions/{session_id}/")
-        )
-
-    def _sync_delete_prefix(self, prefix: str) -> int:
-        blobs = list(self._client.list_blobs(self._bucket_name, prefix=prefix))
-        if blobs:
-            self._bucket.delete_blobs(blobs)
-        return len(blobs)
+    def get_public_url_from_gcs_uri(self, gcs_uri: str) -> str:
+        """Convert a gs://bucket/path URI to its public HTTPS URL."""
+        return self.get_public_url(self.object_path_from_uri(gcs_uri))
 
 gcs_service = GCSStorageService()
