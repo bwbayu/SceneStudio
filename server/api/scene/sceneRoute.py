@@ -12,7 +12,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from models import StoryBoard
-from api.scene.sceneService import generate_scene_videos
+from api.scene.sceneService import generate_scene_videos, generate_scene_videos_apixo
 from api.firestore.firestoreService import firestore_service
 
 logger = logging.getLogger(__name__)
@@ -31,6 +31,7 @@ _scene_tasks: dict[str, asyncio.Task] = {}
 class GenerateSceneRequest(BaseModel):
     session_id: str
     scene_id: str
+    provider: str = "apixo"  # "gemini" | "apixo"
 
 
 class SceneStatusRequest(BaseModel):
@@ -53,6 +54,12 @@ async def generate_scene_video(request: GenerateSceneRequest):
     Returns immediately; generation runs in the background.
     """
     task_key = f"{request.session_id}_{request.scene_id}"
+
+    if request.provider not in ("gemini", "apixo"):
+        raise HTTPException(
+            status_code=422,
+            detail=f"Invalid provider '{request.provider}'. Must be 'gemini' or 'apixo'.",
+        )
 
     # Prevent duplicate generation
     existing_task = _scene_tasks.get(task_key)
@@ -92,16 +99,25 @@ async def generate_scene_video(request: GenerateSceneRequest):
     # Launch background task
     async def _run():
         try:
-            await generate_scene_videos(
-                session_id=request.session_id,
-                story_id=story_id,
-                scene=scene,
-                actors=storyboard.actors,
-                themes=storyboard.themes,
-            )
-            logger.info("Scene %s generation complete", request.scene_id)
+            if request.provider == "gemini":
+                await generate_scene_videos(
+                    session_id=request.session_id,
+                    story_id=story_id,
+                    scene=scene,
+                    actors=storyboard.actors,
+                    themes=storyboard.themes,
+                )
+            else:
+                await generate_scene_videos_apixo(
+                    session_id=request.session_id,
+                    story_id=story_id,
+                    scene=scene,
+                    actors=storyboard.actors,
+                    themes=storyboard.themes,
+                )
+            logger.info("Scene %s generation complete (%s)", request.scene_id, request.provider)
         except Exception:
-            logger.exception("Scene %s generation failed", request.scene_id)
+            logger.exception("Scene %s generation failed (%s)", request.scene_id, request.provider)
             raise
 
     task = asyncio.create_task(_run())
