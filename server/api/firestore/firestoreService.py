@@ -99,6 +99,8 @@ class FirestoreService:
                 "creator_id": creator_id,
                 "title": title,
                 "status": "generating",
+                "thumbnail_gcs_uri": storyboard_data.get("thumbnail_gcs_uri"),
+                "thumbnail_url": storyboard_data.get("thumbnail_url"),
                 "actors": storyboard_data.get("actors", []),
                 "themes": storyboard_data.get("themes", []),
                 "scenes": storyboard_data.get("scenes", []),
@@ -113,9 +115,9 @@ class FirestoreService:
         )
 
     async def update_actor_image(
-        self, story_id: str, actor_id: str, gcs_uri: str
+        self, story_id: str, actor_id: str, gcs_uri: str, public_url: str
     ) -> None:
-        """Write the GCS URI of a generated actor image into the actors array in-place."""
+        """Write the GCS URI and public URL of a generated actor image into the actors array in-place."""
         doc_ref = self._db.collection("storyboards").document(story_id)
         doc = await doc_ref.get()
         if not doc.exists:
@@ -124,13 +126,14 @@ class FirestoreService:
         for actor in data.get("actors", []):
             if actor.get("actor_id") == actor_id:
                 actor["anchor_image_gcs_uri"] = gcs_uri
+                actor["anchor_image_url"] = public_url
                 break
         await doc_ref.update({"actors": data["actors"]})
 
     async def update_theme_image(
-        self, story_id: str, theme_id: str, gcs_uri: str
+        self, story_id: str, theme_id: str, gcs_uri: str, public_url: str
     ) -> None:
-        """Write the GCS URI of a generated theme image into the themes array in-place."""
+        """Write the GCS URI and public URL of a generated theme image into the themes array in-place."""
         doc_ref = self._db.collection("storyboards").document(story_id)
         doc = await doc_ref.get()
         if not doc.exists:
@@ -139,13 +142,14 @@ class FirestoreService:
         for theme in data.get("themes", []):
             if theme.get("theme_id") == theme_id:
                 theme["reference_image_gcs_uri"] = gcs_uri
+                theme["reference_image_url"] = public_url
                 break
         await doc_ref.update({"themes": data["themes"]})
 
     async def update_segment_video(
-        self, story_id: str, scene_id: str, segment_index: int, gcs_uri: str
+        self, story_id: str, scene_id: str, segment_index: int, gcs_uri: str, public_url: str
     ) -> None:
-        """Write the GCS URI of a generated video segment into the scenes array in-place."""
+        """Write the GCS URI and public URL of a generated video segment into the scenes array in-place."""
         doc_ref = self._db.collection("storyboards").document(story_id)
         doc = await doc_ref.get()
         if not doc.exists:
@@ -156,14 +160,15 @@ class FirestoreService:
                 for segment in scene.get("segments", []):
                     if segment.get("segment_index") == segment_index:
                         segment["video_gcs_uri"] = gcs_uri
+                        segment["video_url"] = public_url
                         break
                 break
         await doc_ref.update({"scenes": data["scenes"]})
 
     async def update_scene_thumbnail(
-        self, story_id: str, scene_id: str, gcs_uri: str
+        self, story_id: str, scene_id: str, gcs_uri: str, public_url: str
     ) -> None:
-        """Write the GCS URI of a scene thumbnail image into the scenes array in-place."""
+        """Write the GCS URI and public URL of a scene thumbnail into the scenes array in-place."""
         doc_ref = self._db.collection("storyboards").document(story_id)
         doc = await doc_ref.get()
         if not doc.exists:
@@ -172,6 +177,7 @@ class FirestoreService:
         for scene in data.get("scenes", []):
             if scene.get("scene_id") == scene_id:
                 scene["thumbnail_gcs_uri"] = gcs_uri
+                scene["thumbnail_url"] = public_url
                 break
         await doc_ref.update({"scenes": data["scenes"]})
 

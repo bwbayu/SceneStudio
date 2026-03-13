@@ -179,3 +179,14 @@ class SessionResponse(BaseModel):
     questions: Optional[list[ClarificationQuestion]] = None
     storyboard: Optional[StoryBoard] = None
     error: Optional[str] = None
+
+
+class PipelineStatusResponse(BaseModel):
+    """Lightweight status response for the full generation pipeline polling endpoint."""
+    session_id: str
+    story_id: Optional[str] = None
+    # pending | clarifying | processing_agents | processing_assets
+    # | generating_images | generating_videos | generation_complete | error
+    status: str
+    questions: Optional[list[ClarificationQuestion]] = None
+    error: Optional[str] = None

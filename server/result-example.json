@@ -1,427 +1,572 @@
 {
-  "session_id": "bcef6eca-80bb-4db7-8a51-b5027d3e84b0",
-  "status": "complete",
-  "questions": null,
-  "storyboard": {
-    "story_id": "77de1a51-7610-449e-a57b-a1549f030f24",
-    "title": "Marcus Cole visits the...",
-    "actors": [
-      {
-        "actor_id": "actor_001",
-        "name": "Marcus Cole",
-        "physical_description": "A man in his mid-30s with a tall, lean, and athletic build. He has deep mahogany skin with a smooth texture. His hair is kept in a short, neat crop, and he has a well-groomed, light stubble along his jawline. His eyes are dark brown, expressive, and often narrowed in concentration. He stands approximately 6 feet 2 inches tall.",
-        "outfit_description": "A well-worn, weathered brown leather bomber jacket with visible scuffs and a matte finish. Underneath, he wears a charcoal grey ribbed henley shirt with three buttons at the neck. He wears dark indigo denim jeans that show slight wear at the knees and sturdy, mud-dusted black leather hiking boots.",
-        "anchor_image_url": null
-      },
-      {
-        "actor_id": "actor_002",
-        "name": "Elena Voss",
-        "physical_description": "A woman in her late 40s with a pale, porcelain complexion and sharp, angular facial features. Her most striking feature is her dark raven hair, which is heavily streaked with silver and pulled back into a tight, severe bun at the nape of her neck. She has piercing, cold grey eyes and thin, expressive lips. Her posture is unnervingly still and upright.",
-        "outfit_description": "A high-neck black cashmere turtleneck sweater that fits snugly, emphasizing her gaunt frame. She wears heavy-duty olive green cargo pants with multiple pockets and a reinforced waistband. On her feet are thick wool socks peeking out from dark brown, lace-up tactical-style boots.",
-        "anchor_image_url": null
-      }
-    ],
-    "themes": [
-      {
-        "theme_id": "theme_001",
-        "location_name": "Cabin Exterior - Remote Pacific Northwest Forest",
-        "atmosphere": "Dense, towering evergreens dripping with moisture. A thick, low-hanging fog swallows the base of the trees. The cabin is weathered cedar wood, moss-covered and isolated. Autumn leaves in muted, decaying browns and deep oranges carpet the sodden ground. The air feels heavy and damp, emphasizing a sense of being miles from civilization.",
-        "lighting": "Deeply overcast and flat daylight, cold blue-grey color palette, filtered through heavy mist and dense forest canopy. Natural light is minimal, creating a desaturated, 'Nordic noir' aesthetic.",
-        "reference_image_url": null
-      },
-      {
-        "theme_id": "theme_002",
-        "location_name": "Cabin Interior - Living Room / Interview Area",
-        "atmosphere": "Claustrophobic and cramped. Low timber-beamed ceilings and walls lined with dusty bookshelves and old maps. Mid-century rustic furniture that feels lived-in but neglected. There is a sense of being trapped; windows are small and blurred by streaks of rain and condensation. Shadows gather in every corner, creating a visual language of secrets and hidden motives.",
-        "lighting": "Low-key and moody. The primary light source is a flickering, weak amber light from a stone fireplace, contrasted against the cold, blueish light bleeding through the small windows. Harsh shadows across faces, emphasizing sharp features and tense expressions.",
-        "reference_image_url": null
-      },
-      {
-        "theme_id": "theme_003",
-        "location_name": "Cabin Interior - Kitchenette Nook",
-        "atmosphere": "Stark and functional. Utensils and cast-iron pans hang from walls like implements of a different nature. A small, stained wooden table sits between Marcus and Elena. The space is tight, forcing a physical proximity that heightens the psychological tension. A single window looks out into the impenetrable grey fog.",
-        "lighting": "A single, warm-toned hanging bulb above the table casting steep, dramatic shadows downward. The surrounding room remains in near-total darkness, focusing all visual attention on the micro-expressions of the characters.",
-        "reference_image_url": null
-      },
-      {
-        "theme_id": "theme_004",
-        "location_name": "Cabin Porch - Transition Zone",
-        "atmosphere": "A narrow, covered wooden deck with a rusted screen door. Rain lashes against the steps. The boundary between the claustrophobic interior and the hostile, vast forest. A feeling of exposed vulnerability for anyone attempting to flee.",
-        "lighting": "Twilight or heavy storm-light. Blue-hour tones dominate, with a sliver of warm orange light spilling out from the open cabin door, cutting through the heavy rain and mist.",
-        "reference_image_url": null
-      }
-    ],
-    "scenes": [
-      {
-        "scene_id": "scene_001",
-        "title": "The Threshold of Secrets",
-        "segments": [
-          {
-            "segment_index": 1,
-            "visual_prompt": "[Cabin Exterior - Remote Pacific Northwest Forest] [Deeply overcast, cold blue-grey light]. Marcus Cole (tall, mahogany skin, brown leather bomber jacket) stands before a weathered cedar cabin, clutching a digital recorder. Thick fog swallows the base of the towering evergreens around him. Suspenseful, atmospheric opening.",
-            "camera_movement": "wide establishing shot",
-            "action_description": "Marcus arrives at the isolated cabin as the fog rolls in heavily from the forest.",
-            "dialogue": [],
-            "audio": {
-              "bgm": "Low suspenseful drone with subtle strings",
-              "sfx": "Wind whistling through pines, distant raven caw, boots crunching on wet leaves"
-            }
+  "story_id": "4d5a7137-cad8-494c-b085-b7b2bc13344e",
+  "title": "Signal in the Rain",
+  "thumbnail_gcs_uri": null,
+  "thumbnail_url": null,
+  "actors": [
+    {
+      "actor_id": "actor_001",
+      "name": "Arya",
+      "physical_description": "Female, 31 years old. Sharp, angular facial features with high cheekbones and a focused, intense gaze. Her eyes are a piercing steely grey with a faint, glowing cybernetic rim visible around the iris. She has dark black hair cut into a sleek, asymmetrical bob that is damp from the rain. Medium-athletic build, approximately 5 feet 8 inches tall. Skin tone is olive, characteristic of Indonesian heritage, with a small, vertical scar on her left temple. Expression is disciplined but shows underlying emotional turmoil.",
+      "outfit_description": "A high-tech matte-black tactical trench coat made of a carbon-fiber weave that repels water. The coat features integrated LED strips along the seams that pulse with a faint white light. Underneath, she wears a charcoal-grey armored compression suit with reinforced shoulder pads. Her utility belt is equipped with silver-toned magnetic canisters and a holstered sleek black pulse pistol. She wears fingerless combat gloves and heavy, waterproof tactical boots with metallic buckles.",
+      "anchor_image_gcs_uri": "gs://gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/actors/actor_001.png",
+      "anchor_image_url": "https://storage.googleapis.com/gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/actors/actor_001.png"
+    },
+    {
+      "actor_id": "actor_002",
+      "name": "Kai",
+      "physical_description": "Male, 34 years old. Lean, slightly lanky build with an intense, sleep-deprived appearance. He has thick, messy dark brown hair that is perpetually disheveled and wet. Deep-set brown eyes framed by faint dark circles and a three-day stubble. His skin is pale from years spent in server rooms. Approximately 6 feet tall with long, dexterous fingers stained with solder and grease. He has a slight hunch in his posture from working over consoles.",
+      "outfit_description": "A worn, olive-drab canvas utility jacket covered in various technological patches and reinforced with internal wiring. He wears a bulky, custom-built portable transmitter rig strapped to his back with thick nylon webbing; the rig is a tangle of copper wires, glowing vacuum tubes, and small digital displays. Underneath is a faded black graphic t-shirt with a glitch-art logo. He wears dark cargo pants with numerous pockets stuffed with tools and wires, and heavy, scuffed brown leather work boots. A pair of digital loupe goggles hangs around his neck.",
+      "anchor_image_gcs_uri": "gs://gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/actors/actor_002.png",
+      "anchor_image_url": "https://storage.googleapis.com/gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/actors/actor_002.png"
+    }
+  ],
+  "themes": [
+    {
+      "theme_id": "theme_001",
+      "location_name": "Neo-Jakarta High-Altitude Exterior — The Comm Tower Base",
+      "atmosphere": "A claustrophobic, vertigo-inducing ledge overlooking a vertical megalopolis. Architecture is 'Indo-Futurist' with massive brutalist concrete structures interlaced with dense clusters of glowing neon signage in Bahasa Indonesia. The air is thick with perpetual 'black rain' that reflects the city's saturated magenta and teal lights. Visible holographic advertisements glitch and ripple in the wind.",
+      "lighting": "Low-key noir lighting. Harsh magenta and cyan neon from surrounding skyscrapers cut through thick fog and rain. Deep, high-contrast shadows with the occasional sweep of a corporate searchlight from below.",
+      "reference_image_gcs_uri": "gs://gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/themes/theme_001.png",
+      "reference_image_url": "https://storage.googleapis.com/gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/themes/theme_001.png"
+    },
+    {
+      "theme_id": "theme_002",
+      "location_name": "Abandoned Communications Tower — Main Transmitter Hub",
+      "atmosphere": "A decaying, circular room filled with obsolete industrial machinery and state-of-the-art rogue tech. Exposed bundles of fiber-optic cables snake across the floor like vines. The walls are metallic and rusted, peeling away to reveal structural circuitry. A central transmitter rig glows with an unstable, pulsating white light, surrounded by portable monitors displaying distorted, grainy historical footage.",
+      "lighting": "Cold, flickering fluorescent overheads mixed with the warm amber glow of vacuum tubes and the harsh blue light of computer terminals. Rainwater streaks across floor-to-ceiling windows, distorting the city lights into bokeh smears.",
+      "reference_image_gcs_uri": "gs://gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/themes/theme_002.png",
+      "reference_image_url": "https://storage.googleapis.com/gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/themes/theme_002.png"
+    },
+    {
+      "theme_id": "theme_003",
+      "location_name": "The Memory Interface — Subjective Digital Space",
+      "atmosphere": "A surreal, glitchy representation of the memory stream. The physical tower fades into a void where 'fragments' of old Neo-Jakarta float like shards of glass. Architectural elements of the city are seen in 'sanitized' white versus the 'raw' sepia-toned traumatic memories. Visual artifacts and 'digital rain' data-streams fall upwards through the space.",
+      "lighting": "Stark, ethereal white light clashing with deep, monochromatic sepia. Occasional bursts of red 'error' lighting when the corporate firewall attempts to overwrite the memory stream.",
+      "reference_image_gcs_uri": "gs://gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/themes/theme_003.png",
+      "reference_image_url": "https://storage.googleapis.com/gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/themes/theme_003.png"
+    },
+    {
+      "theme_id": "theme_004",
+      "location_name": "Transmitter Control Deck — Tactical Lockdown",
+      "atmosphere": "A high-stakes, cramped terminal area overlooking the tower entrance. Heavy blast doors are bolted shut, sparks flying from the hinges. The vibe is frantic and militaristic, filled with the hum of overclocked processors and the smell of ozone. Tactical readouts on screens show approaching corporate drone swarms as red icons.",
+      "lighting": "Emergency red strobe lighting. The primary light source is the brilliant, blinding white glare from the transmitter interface as it reaches critical capacity. Shadows are long, sharp, and move rapidly with the strobes.",
+      "reference_image_gcs_uri": "gs://gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/themes/theme_004.png",
+      "reference_image_url": "https://storage.googleapis.com/gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/themes/theme_004.png"
+    }
+  ],
+  "scenes": [
+    {
+      "scene_id": "scene_001",
+      "title": "The Glitch in the Tower",
+      "segments": [
+        {
+          "segment_index": 1,
+          "visual_prompt": "[Abandoned Communications Tower — Main Transmitter Hub] [Cold, flickering fluorescent overheads and rain-streaked windows]. Arya, a 31-year-old female with a sleek black asymmetrical bob and glowing cybernetic eye rims, enters the room. She wears a matte-black tactical trench coat with pulsing white LED seams. She raises her sleek black pulse pistol, scanning the decaying room filled with rusted machinery and glowing fiber-optic cables. Tense, disciplined cinematic noir style.",
+          "camera_movement": "wide establishing shot moving into a medium follow shot",
+          "action_description": "Arya enters the transmitter hub with her weapon drawn, searching for Kai among the humming machinery.",
+          "dialogue": [
+            "Arya: Kai! Step away from the terminal. Now."
+          ],
+          "audio": {
+            "bgm": "Low suspenseful synth drone with rhythmic industrial pulses",
+            "sfx": "Heavy rain drumming on metal roof, electrical hum of machinery, boots clicking on metal floor"
           },
-          {
-            "segment_index": 2,
-            "visual_prompt": "[Cabin Porch - Transition Zone] [Blue-hour tones with warm orange light from door]. Elena Voss (pale, silver-streaked raven hair in a tight bun, black turtleneck) opens the rusted screen door. She stares at Marcus with a cold, piercing gaze. Rain begins to lash against the wooden steps. Tense confrontation.",
-            "camera_movement": "slow push in on Elena's face",
-            "action_description": "Elena greets Marcus at the door, her presence intimidating and still.",
-            "dialogue": [
-              "Elena Voss: You're late, Mr. Cole. The woods don't like to be kept waiting."
-            ],
-            "audio": {
-              "bgm": "Dissonant low-frequency pulse",
-              "sfx": "Rusted screen door creaking, heavy rain starting to fall on the porch roof"
-            }
+          "actor_ids": [
+            "actor_001"
+          ],
+          "theme_id": "theme_002",
+          "video_gcs_uri": "gs://gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/scenes/scene_001/seg1/video.mp4",
+          "video_url": "https://storage.googleapis.com/gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/scenes/scene_001/seg1/video.mp4"
+        },
+        {
+          "segment_index": 2,
+          "visual_prompt": "[Abandoned Communications Tower — Main Transmitter Hub] [Harsh blue light from computer terminals]. Kai, a lanky 34-year-old male with messy dark hair and a stubbled face, is hunched over a glowing transmitter rig. He wears an olive utility jacket with a bulky wiring rig on his back. He turns slowly, his hands hovering over a custom-built interface that flickers with distorted historical footage. His expression is desperate and sleep-deprived.",
+          "camera_movement": "slow push in on Kai's face",
+          "action_description": "Kai turns to face Arya, refusing to move away from the glowing transmitter as his eyes dart between her and the screen.",
+          "dialogue": [
+            "Kai: You don't want to do this, Arya. You don't even know what they took from you."
+          ],
+          "audio": {
+            "bgm": "High-pitched digital tension rising in volume",
+            "sfx": "Static crackle from monitors, high-frequency whine from the transmitter"
           },
-          {
-            "segment_index": 3,
-            "visual_prompt": "[Cabin Interior - Living Room] [Flickering amber fireplace light, harsh shadows]. Marcus and Elena sit opposite each other in rustic chairs. The room is cramped with dusty bookshelves. Marcus sets his recorder on a small table. Thick, claustrophobic atmosphere.",
-            "camera_movement": "static medium two-shot",
-            "action_description": "They settle into the living room, the interview beginning under the weight of the storm.",
-            "dialogue": [
-              "Marcus Cole: I appreciate you seeing me, Elena. Let's start with the night of the 14th.",
-              "Elena Voss: Words are dangerous things in a house like this."
-            ],
-            "audio": {
-              "bgm": "Subtle, rhythmic ticking sound in the background",
-              "sfx": "Crackling fireplace, rain lashing against the window glass"
-            }
-          }
-        ],
-        "choices": [
-          {
-            "text": "Press her on the timeline discrepancy",
-            "target_scene_id": "scene_002"
+          "actor_ids": [
+            "actor_002"
+          ],
+          "theme_id": "theme_002",
+          "video_gcs_uri": "gs://gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/scenes/scene_001/seg2/video.mp4",
+          "video_url": "https://storage.googleapis.com/gemini-hackathon-8565416389/sessions/0ec64e87-4147-4dba-b70d-d52a13a62a87/scenes/scene_001/seg2/video.mp4"
+        },
+        {
+          "segment_index": 3,
+          "visual_prompt": "[The Memory Interface — Subjective Digital Space] [Stark ethereal white light and sepia fragments]. The reality of the tower glitches out. Arya's face is illuminated by a sudden burst of red 'error' light as digital rain falls upwards. Around her, floating shards show memories of Neo-Jakarta protests. Kai stands in the center of the data-stream, his image flickering like a hologram. Surreal, disorienting cinematic style.",
+          "camera_movement": "dolly zoom on Arya's face",
+          "action_description": "Kai triggers a neural override, forcing Arya to experience fragmented, suppressed memories as the physical room dissolves into data.",
+          "dialogue": [
+            "Kai: Look at the truth. Look at what we did."
+          ],
+          "audio": {
+            "bgm": "Distorted, echoing piano melody under heavy data-glitch sounds",
+            "sfx": "Digital screaming, rushing wind, sound of glass shattering"
           },
-          {
-            "text": "Try to build rapport and trust",
-            "target_scene_id": "scene_003"
-          }
-        ],
-        "is_ending": false
-      },
-      {
-        "scene_id": "scene_002",
-        "title": "The Cracks Appear",
-        "segments": [
-          {
-            "segment_index": 1,
-            "visual_prompt": "[Cabin Interior - Kitchenette Nook] [Warm-toned hanging bulb, steep dramatic shadows]. Marcus (charcoal grey henley) leans forward, pointing at his notes. Elena (black turtleneck) holds a white porcelain mug with both hands. Her face is a mask of calm. Psychological tension.",
-            "camera_movement": "over-the-shoulder shot from Marcus to Elena",
-            "action_description": "Marcus points out a specific contradiction in Elena's story about the disappearance.",
-            "dialogue": [
-              "Marcus Cole: Your statement says you were home by ten, but the park gate logs show your car leaving at midnight."
-            ],
-            "audio": {
-              "bgm": "High-pitched, receding violin note",
-              "sfx": "Slight rattle of the porcelain mug against its saucer"
-            }
+          "actor_ids": [
+            "actor_001",
+            "actor_002"
+          ],
+          "theme_id": "theme_003",
+          "video_gcs_uri": null,
+          "video_url": null
+        }
+      ],
+      "choices": [
+        {
+          "text": "Arrest Kai immediately",
+          "target_scene_id": "scene_002"
+        },
+        {
+          "text": "Listen to Kai's explanation",
+          "target_scene_id": "scene_003"
+        }
+      ],
+      "is_ending": false,
+      "thumbnail_gcs_uri": null,
+      "thumbnail_url": null
+    },
+    {
+      "scene_id": "scene_002",
+      "title": "Corporate Protocol",
+      "segments": [
+        {
+          "segment_index": 1,
+          "visual_prompt": "[Abandoned Communications Tower — Main Transmitter Hub] [Cold flickering fluorescents]. Arya, her face tight with discipline, lunges forward and slams Kai against a rusted metal pillar. She clicks metallic shackles onto his wrists. Kai struggles weakly, his olive jacket snagging on the rough surface. The central transmitter continues to pulse with unstable white light behind them.",
+          "camera_movement": "handheld shaky cam for close-up action",
+          "action_description": "Arya forcefully subdues Kai and prepares to arrest him, ignoring his protests.",
+          "dialogue": [
+            "Arya: Corporate protocol is clear, Kai. You're coming with me.",
+            "Kai: You're making a mistake! They'll kill us both!"
+          ],
+          "audio": {
+            "bgm": "Driving, percussive action beat",
+            "sfx": "Handcuffs clicking, body hitting metal, heavy breathing"
           },
-          {
-            "segment_index": 2,
-            "visual_prompt": "[Cabin Interior - Kitchenette Nook] [Stark overhead light]. Close-up of Elena’s hands tightening so hard on the porcelain mug that her knuckles turn white. Her eyes dart briefly to the window before locking back onto Marcus. Chilling composure.",
-            "camera_movement": "extreme close-up on hands and then eyes",
-            "action_description": "Elena's composure flickers momentarily before she regains control.",
-            "dialogue": [
-              "Elena Voss: Logs can be faked, Mr. Cole. The forest, however, keeps a much more honest record."
-            ],
-            "audio": {
-              "bgm": "Rising industrial hum",
-              "sfx": "A sudden, loud crack of thunder outside"
-            }
+          "actor_ids": [
+            "actor_001",
+            "actor_002"
+          ],
+          "theme_id": "theme_002",
+          "video_gcs_uri": null,
+          "video_url": null
+        },
+        {
+          "segment_index": 2,
+          "visual_prompt": "[Transmitter Control Deck — Tactical Lockdown] [Emergency red strobe lighting]. Arya's wrist-mounted comms unit chirps and displays a holographic 'ENCRYPTED' notice. A wall of monitors turns bright red. Arya pauses, her steely grey eyes widening as the text 'TERMINATION ORDER: SUBJECT ARYA-7' scrolls across the display. Frantic, militaristic atmosphere.",
+          "camera_movement": "tight close-up on Arya's wrist unit and her changing expression",
+          "action_description": "Arya receives a termination order from OmniGrid HQ, realizing she has been betrayed.",
+          "dialogue": [
+            "Arya: This can't be right... 'Eliminate with extreme prejudice'?"
+          ],
+          "audio": {
+            "bgm": "Ominous low-frequency bass drop",
+            "sfx": "Electronic chirping, high-speed data scrolling sound"
           },
-          {
-            "segment_index": 3,
-            "visual_prompt": "[Cabin Interior - Kitchenette Nook] [Deep shadows]. Elena leans into the pool of light from the hanging bulb. Her expression is unnervingly still. Marcus looks visibly unsettled by her calm demeanor. High-stakes standoff.",
-            "camera_movement": "slow pull back to show both characters",
-            "action_description": "Elena offers a chillingly calm alternative explanation that leaves Marcus reeling.",
-            "dialogue": [
-              "Elena Voss: Perhaps the car left, but I didn't. Have you considered who else has my keys?"
-            ],
-            "audio": {
-              "bgm": "Ominous synth pad",
-              "sfx": "The sound of rain intensifying into a roar"
-            }
-          }
-        ],
-        "choices": [
-          {
-            "text": "Openly accuse her of lying",
-            "target_scene_id": "scene_004"
+          "actor_ids": [
+            "actor_001"
+          ],
+          "theme_id": "theme_004",
+          "video_gcs_uri": null,
+          "video_url": null
+        },
+        {
+          "segment_index": 3,
+          "visual_prompt": "[Neo-Jakarta High-Altitude Exterior — The Comm Tower Base] [Harsh magenta and cyan neon through thick rain]. Out the window, multiple corporate drones with glowing red eye-sensors descend through the black rain towards the tower. Inside, Arya looks back at Kai, her hand trembling slightly as she grips her pulse pistol. The city lights below glitch and ripple. Cliffhanger tone.",
+          "camera_movement": "wide shot through rain-streaked window, panning back to Arya",
+          "action_description": "Drones surround the tower as Arya realizes she is now a target alongside Kai.",
+          "dialogue": [
+            "Kai: I told you. We're both liabilities now."
+          ],
+          "audio": {
+            "bgm": "Sudden silence followed by a distant mechanical swarm hum",
+            "sfx": "Distant whirring of drone rotors, thunder rumble"
           },
-          {
-            "text": "Secretly search the room while she's distracted",
-            "target_scene_id": "scene_005"
-          }
-        ],
-        "is_ending": false
-      },
-      {
-        "scene_id": "scene_003",
-        "title": "Whispers of the Woods",
-        "segments": [
-          {
-            "segment_index": 1,
-            "visual_prompt": "[Cabin Interior - Living Room] [Soft, flickering amber light from fireplace]. Elena sits back, her posture softening slightly. Marcus watches her, his recorder forgotten. The shadows in the corner of the room seem to dance. Haunting, folktale atmosphere.",
-            "camera_movement": "medium shot of Elena with fireplace in background",
-            "action_description": "Elena begins to tell a story about the local legends of the forest.",
-            "dialogue": [
-              "Elena Voss: People think they get lost. They don't. The hunger of these trees... it calls to the hollow parts of a soul."
-            ],
-            "audio": {
-              "bgm": "Gentle, melancholy piano melody",
-              "sfx": "Soft hiss of the fire, wind howling in the chimney"
-            }
+          "actor_ids": [
+            "actor_001",
+            "actor_002"
+          ],
+          "theme_id": "theme_001",
+          "video_gcs_uri": null,
+          "video_url": null
+        }
+      ],
+      "choices": [
+        {
+          "text": "Join forces with Kai to survive",
+          "target_scene_id": "scene_004"
+        },
+        {
+          "text": "Surrender to the incoming drones",
+          "target_scene_id": "scene_005"
+        }
+      ],
+      "is_ending": false,
+      "thumbnail_gcs_uri": null,
+      "thumbnail_url": null
+    },
+    {
+      "scene_id": "scene_003",
+      "title": "The Unfiltered Truth",
+      "segments": [
+        {
+          "segment_index": 1,
+          "visual_prompt": "[Abandoned Communications Tower — Main Transmitter Hub] [Amber glow from vacuum tubes]. Kai stands by the transmitter, his long fingers moving rapidly over the controls. Arya stands back, her pulse pistol lowered but still in hand. The monitors around them show grainy, sepia-toned footage of soldiers in black tactical gear — Arya's unit — suppressing a crowd of protesters. Somber, revelatory tone.",
+          "camera_movement": "slow pan across the bank of monitors",
+          "action_description": "Kai shows Arya the hidden footage of her past actions during the Neo-Jakarta protests.",
+          "dialogue": [
+            "Kai: That's you, Arya. Three years ago. They wiped the guilt, but they couldn't wipe the data."
+          ],
+          "audio": {
+            "bgm": "Melancholic synth pads",
+            "sfx": "Grainy film projector sound, muffled crowd shouting from the video"
           },
-          {
-            "segment_index": 2,
-            "visual_prompt": "[Cabin Interior - Living Room] [Harsh shadows, low angle]. Marcus shivers, adjusting his leather jacket. He looks toward the small, condensation-streaked window. The fog outside is pressed against the glass like a physical weight. Psychological dread.",
-            "camera_movement": "low angle looking up at Marcus",
-            "action_description": "Marcus feels a chill as he realizes the depth of Elena's obsession with the woods.",
-            "dialogue": [
-              "Marcus Cole: You're talking about it like it's alive.",
-              "Elena Voss: Because it is, Marcus. And it hasn't fed in a long time."
-            ],
-            "audio": {
-              "bgm": "Ethereal, haunting choral textures",
-              "sfx": "A branch scraping against the cabin wall like a fingernail"
-            }
+          "actor_ids": [
+            "actor_001",
+            "actor_002"
+          ],
+          "theme_id": "theme_002",
+          "video_gcs_uri": null,
+          "video_url": null
+        },
+        {
+          "segment_index": 2,
+          "visual_prompt": "[Transmitter Control Deck — Tactical Lockdown] [Intense white light from the transmitter interface]. Kai connects his portable rig to the main console with a tangle of copper wires. Sparks fly from the connection. Arya watches, her expression a mix of horror and dawning realization. Outside, the red lights of approaching drones become visible through the storm. High stakes atmosphere.",
+          "camera_movement": "low angle looking up at the sparking transmitter",
+          "action_description": "Kai prepares the final broadcast sequence to reveal the truth to the entire city.",
+          "dialogue": [
+            "Kai: If I trigger this, everyone remembers. Everything. No more curated peace."
+          ],
+          "audio": {
+            "bgm": "Aggressive, fast-paced electronic pulse",
+            "sfx": "Electrical arcing, ozone crackle, drone engines getting louder"
           },
-          {
-            "segment_index": 3,
-            "visual_prompt": "[Cabin Interior - Living Room] [Flickering light, extreme close-up]. Elena’s eyes reflect the firelight. She offers a small, cryptic smile. Marcus stares at her, realization dawning that she is far more dangerous than he thought. Cliffhanger.",
-            "camera_movement": "tight close-up on Elena's eyes",
-            "action_description": "Elena finishes her story, leaving the truth obscured by myth.",
-            "dialogue": [
-              "Elena Voss: Do you feel it now? The weight of all those eyes in the dark?"
-            ],
-            "audio": {
-              "bgm": "Piano melody fades to a single, unsettling note",
-              "sfx": "A distant, muffled thud from somewhere deep in the house"
-            }
-          }
-        ],
-        "choices": [
-          {
-            "text": "Mention the physical evidence he brought",
-            "target_scene_id": "scene_002"
+          "actor_ids": [
+            "actor_002"
+          ],
+          "theme_id": "theme_004",
+          "video_gcs_uri": null,
+          "video_url": null
+        },
+        {
+          "segment_index": 3,
+          "visual_prompt": "[Neo-Jakarta High-Altitude Exterior — The Comm Tower Base] [Magenta and teal lighting reflected in black rain]. A swarm of corporate drones hover outside the windows, their spotlights sweeping into the room, creating long, moving shadows. Arya looks at the transmitter, then at the drones. She has to make a choice before they breach. Tense cliffhanger.",
+          "camera_movement": "static medium two-shot of Arya and Kai silhouetted against the window",
+          "action_description": "The drones arrive to stop the broadcast as Kai waits for Arya's decision.",
+          "dialogue": [
+            "Kai: Make a choice, Arya. Do we give them back their history or let it die here?"
+          ],
+          "audio": {
+            "bgm": "Sudden orchestral swell ending on a sharp note",
+            "sfx": "Glass vibrating from drone proximity, heavy mechanical clanking"
           },
-          {
-            "text": "Accept her tea and keep listening",
-            "target_scene_id": "scene_005"
-          }
-        ],
-        "is_ending": false
-      },
-      {
-        "scene_id": "scene_004",
-        "title": "The Final Confrontation",
-        "segments": [
-          {
-            "segment_index": 1,
-            "visual_prompt": "[Cabin Interior - Living Room] [Dim, strobing fireplace light]. Elena stands abruptly, her face twisted in a cold snarl. She grabs a heavy iron fireplace poker. Marcus stands, backing away toward the kitchen. Sudden shift to violence.",
-            "camera_movement": "handheld follow on Elena's movement",
-            "action_description": "The interview turns violent as Elena reveals her true intentions.",
-            "dialogue": [
-              "Marcus Cole: Put that down, Elena! I just want the truth!",
-              "Elena Voss: The truth is buried. And now, so are you."
-            ],
-            "audio": {
-              "bgm": "Fast-paced, aggressive percussion",
-              "sfx": "Iron poker clattering against stone, chair scraping floor"
-            }
+          "actor_ids": [
+            "actor_001",
+            "actor_002"
+          ],
+          "theme_id": "theme_001",
+          "video_gcs_uri": null,
+          "video_url": null
+        }
+      ],
+      "choices": [
+        {
+          "text": "Help Kai stabilize the signal",
+          "target_scene_id": "scene_006"
+        },
+        {
+          "text": "Sabotage the transmitter",
+          "target_scene_id": "scene_007"
+        }
+      ],
+      "is_ending": false,
+      "thumbnail_gcs_uri": null,
+      "thumbnail_url": null
+    },
+    {
+      "scene_id": "scene_004",
+      "title": "Desperate Alliance",
+      "segments": [
+        {
+          "segment_index": 1,
+          "visual_prompt": "[Transmitter Control Deck — Tactical Lockdown] [Emergency red strobe lighting]. Arya holsters her weapon and uses her fingerless gloves to grip a massive bundle of fiber-optic cables, pulling them toward Kai's rig. Kai is frantically typing on a holographic keyboard that is glitching red. Both look determined despite the chaos. Frantic, high-action tone.",
+          "camera_movement": "fast-paced over-the-shoulder cuts",
+          "action_description": "Arya and Kai work together to bypass the corporate firewalls and power the transmitter.",
+          "dialogue": [
+            "Arya: I'm bypassing the secondary firewall! Just get the link ready!",
+            "Kai: Almost there! Just a few more sectors!"
+          ],
+          "audio": {
+            "bgm": "Intense, driving cinematic percussion",
+            "sfx": "Rapid typing, cable rubbing, heavy metal sliding"
           },
-          {
-            "segment_index": 2,
-            "visual_prompt": "[Cabin Interior - Living Room] [High contrast, shadows]. Elena blocks the main door, the poker held like a weapon. Marcus is trapped between the bookshelves and the fireplace. The room feels smaller than ever. Desperate struggle.",
-            "camera_movement": "wide shot showing the distance between them",
-            "action_description": "Elena cuts off Marcus's only exit, stalking him around the small room.",
-            "dialogue": [
-              "Elena Voss: You should have stayed in the city, Mr. Cole."
-            ],
-            "audio": {
-              "bgm": "Screeching strings and heavy bass hits",
-              "sfx": "Marcus's heavy breathing, rain pounding the roof"
-            }
+          "actor_ids": [
+            "actor_001",
+            "actor_002"
+          ],
+          "theme_id": "theme_004",
+          "video_gcs_uri": null,
+          "video_url": null
+        },
+        {
+          "segment_index": 2,
+          "visual_prompt": "[Abandoned Communications Tower — Main Transmitter Hub] [Blinding white glare from transmitter]. The central transmitter core begins to spin, throwing off shards of light. Arya and Kai are illuminated in a stark, overexposed white light. The monitors show the city-wide network map turning from corporate blue to a raw, chaotic orange. Peak tension.",
+          "camera_movement": "circular tracking shot around the transmitter",
+          "action_description": "The transmitter reaches critical capacity, ready to either broadcast the truth or mask their escape.",
+          "dialogue": [
+            "Kai: We have enough power for one burst. Either we wake them up, or we use the feedback to blind the drones and vanish!"
+          ],
+          "audio": {
+            "bgm": "Heavy industrial drone crescendo",
+            "sfx": "High-pitched turbine whine, magnetic hum"
           },
-          {
-            "segment_index": 3,
-            "visual_prompt": "[Cabin Interior - Living Room] [Low-key, flickering light]. Marcus looks around frantically for a weapon or an escape. Elena raises the poker, her shadow looming massive against the timber walls. Peak life-or-death tension.",
-            "camera_movement": "slow push in on Marcus's panicked face",
-            "action_description": "Marcus realizes he is in a fight for his life in the dim light.",
-            "dialogue": [
-              "Marcus Cole: Wait! We can talk about this!"
-            ],
-            "audio": {
-              "bgm": "Sudden silence then a loud, booming drum hit",
-              "sfx": "The sound of a heavy blow hitting wood"
-            }
-          }
-        ],
-        "choices": [
-          {
-            "text": "Fight for the exit",
-            "target_scene_id": "scene_006"
+          "actor_ids": [
+            "actor_001",
+            "actor_002"
+          ],
+          "theme_id": "theme_002",
+          "video_gcs_uri": null,
+          "video_url": null
+        },
+        {
+          "segment_index": 3,
+          "visual_prompt": "[Transmitter Control Deck — Tactical Lockdown] [Flickering monitors and emergency red strobes]. The tower shakes as the first corporate breach charge detonates against the blast doors. Arya looks at the terminal, her hand hovering over the final 'EXECUTE' command. Kai looks at her, waiting for the call. Final desperate moment.",
+          "camera_movement": "extreme close-up on Arya's steely grey eyes",
+          "action_description": "As the doors begin to buckle, Arya must decide the fate of the broadcast.",
+          "dialogue": [
+            "Arya: If we leave, the truth stays buried.",
+            "Kai: It's now or never!"
+          ],
+          "audio": {
+            "bgm": "Music cuts to a heartbeat-like pulse",
+            "sfx": "Muffled explosion, metal groaning, alarm sirens"
           },
-          {
-            "text": "Try to bargain for his life",
-            "target_scene_id": "scene_007"
-          }
-        ],
-        "is_ending": false
-      },
-      {
-        "scene_id": "scene_005",
-        "title": "The Hidden Truth",
-        "segments": [
-          {
-            "segment_index": 1,
-            "visual_prompt": "[Cabin Interior - Kitchenette Nook] [Single warm-toned bulb, dark background]. Marcus is alone. He frantically searches a cabinet while Elena is heard clinking dishes in the other room. He finds a loose floorboard. Tense stealth.",
-            "camera_movement": "handheld close-up on Marcus's hands",
-            "action_description": "Marcus discovers a hidden compartment while Elena is distracted.",
-            "dialogue": [],
-            "audio": {
-              "bgm": "Rapid, heartbeat-like synth pulse",
-              "sfx": "Muted clinking of ceramic from the other room, wood creaking"
-            }
+          "actor_ids": [
+            "actor_001",
+            "actor_002"
+          ],
+          "theme_id": "theme_004",
+          "video_gcs_uri": null,
+          "video_url": null
+        }
+      ],
+      "choices": [
+        {
+          "text": "Trigger the memory broadcast",
+          "target_scene_id": "scene_006"
+        },
+        {
+          "text": "Use the signal to escape",
+          "target_scene_id": "scene_005"
+        }
+      ],
+      "is_ending": false,
+      "thumbnail_gcs_uri": null,
+      "thumbnail_url": null
+    },
+    {
+      "scene_id": "scene_005",
+      "title": "The Silence of the Rain",
+      "segments": [
+        {
+          "segment_index": 1,
+          "visual_prompt": "[Neo-Jakarta High-Altitude Exterior — The Comm Tower Base] [Harsh magenta and cyan neon through thick black rain]. Arya is seen from behind, standing on a narrow, rain-slicked ledge high above the city. She looks down into the vertical megalopolis as searchlights sweep past. She is alone. The tower behind her is silent and dark. Somber, lonely atmosphere.",
+          "camera_movement": "wide establishing shot of the city, pulling back to show Arya's silhouette",
+          "action_description": "Arya escapes into the rainy night, leaving the transmitter and Kai behind.",
+          "dialogue": [],
+          "audio": {
+            "bgm": "Gentle, mournful piano melody fading into the wind",
+            "sfx": "Heavy rain, distant city traffic, wind whistling through metal"
           },
-          {
-            "segment_index": 2,
-            "visual_prompt": "[Cabin Interior - Kitchenette Nook] [Dramatic down-lighting]. Marcus pulls out a collection of items: a blood-stained watch, a driver's license, and a lock of hair. His eyes widen in horror. Evidence of the crime.",
-            "camera_movement": "top-down shot of the hidden items",
-            "action_description": "Marcus realizes he has found the victim's personal effects.",
-            "dialogue": [
-              "Marcus Cole: Oh god... she didn't just watch. She kept them."
-            ],
-            "audio": {
-              "bgm": "Low, distorted brass notes",
-              "sfx": "Paper rustling, Marcus's sharp intake of breath"
-            }
+          "actor_ids": [
+            "actor_001"
+          ],
+          "theme_id": "theme_001",
+          "video_gcs_uri": null,
+          "video_url": null
+        },
+        {
+          "segment_index": 2,
+          "visual_prompt": "[Abandoned Communications Tower — Main Transmitter Hub] [Low-key noir lighting with deep shadows]. The transmitter hub is empty. The monitors are dark, and Kai's rig lies abandoned and broken on the floor. A single corporate drone flies slowly through the room, its red light scanning the dust. Desolate and quiet.",
+          "camera_movement": "slow pan across the abandoned room",
+          "action_description": "The corporate forces sweep the tower, finding nothing but the remains of the failed broadcast.",
+          "dialogue": [],
+          "audio": {
+            "bgm": "Low suspenseful drone",
+            "sfx": "Mechanical whirring of a single drone, water dripping"
           },
-          {
-            "segment_index": 3,
-            "visual_prompt": "[Cabin Interior - Kitchenette Nook] [Dark shadows]. A long, thin shadow falls over Marcus and the items. He freezes. Behind him, Elena stands in the doorway, her face unreadable in the dark. Terrifying realization.",
-            "camera_movement": "static shot focused on the floor as the shadow grows",
-            "action_description": "Elena returns and catches Marcus with the incriminating evidence.",
-            "dialogue": [
-              "Elena Voss: Curiosities can be very heavy, can't they, Marcus?"
-            ],
-            "audio": {
-              "bgm": "Sudden, sharp orchestral stinger",
-              "sfx": "A single, loud floorboard creak directly behind Marcus"
-            }
-          }
-        ],
-        "choices": [
-          {
-            "text": "Confront her with the items",
-            "target_scene_id": "scene_004"
+          "actor_ids": [],
+          "theme_id": "theme_002",
+          "video_gcs_uri": null,
+          "video_url": null
+        },
+        {
+          "segment_index": 3,
+          "visual_prompt": "[Neo-Jakarta High-Altitude Exterior — The Comm Tower Base] [Thick fog and glitching holographic advertisements]. The city of Neo-Jakarta continues its routine, the massive screens showing sanitized, happy advertisements in Bahasa Indonesia. The truth remains hidden. Arya's face is briefly reflected in a wet window before she disappears into the crowd. Melancholic ending.",
+          "camera_movement": "slow push in on a glowing advertisement that glitches slightly",
+          "action_description": "The city remains under corporate control, its history forgotten as Arya becomes a ghost in the shadows.",
+          "dialogue": [
+            "Arya: (Internal monologue) Some things are better left forgotten."
+          ],
+          "audio": {
+            "bgm": "Muffled, distant upbeat pop music with a glitchy distortion",
+            "sfx": "Muffled city sounds, rain on glass"
           },
-          {
-            "text": "Slip out the back window into the fog",
-            "target_scene_id": "scene_006"
-          }
-        ],
-        "is_ending": false
-      },
-      {
-        "scene_id": "scene_006",
-        "title": "Lost in the Mist",
-        "segments": [
-          {
-            "segment_index": 1,
-            "visual_prompt": "[Cabin Porch - Transition Zone] [Heavy storm-light, blue-hour tones]. Marcus bursts through the screen door, stumbling into the freezing rain. He doesn't look back. The cabin light flickers behind him. High-speed escape.",
-            "camera_movement": "handheld follow, shaky and fast",
-            "action_description": "Marcus flees the cabin into the hostile environment of the forest.",
-            "dialogue": [],
-            "audio": {
-              "bgm": "Frantic, chaotic percussion and strings",
-              "sfx": "Door slamming, heavy breathing, splashing in mud"
-            }
+          "actor_ids": [
+            "actor_001"
+          ],
+          "theme_id": "theme_001",
+          "video_gcs_uri": null,
+          "video_url": null
+        }
+      ],
+      "choices": [],
+      "is_ending": true,
+      "thumbnail_gcs_uri": null,
+      "thumbnail_url": null
+    },
+    {
+      "scene_id": "scene_006",
+      "title": "The Digital Storm",
+      "segments": [
+        {
+          "segment_index": 1,
+          "visual_prompt": "[Transmitter Control Deck — Tactical Lockdown] [Blinding white glare and emergency red strobes]. Arya slams her hand down on the terminal. A massive pillar of white light erupts from the transmitter, shattering the windows of the hub. Kai shields his eyes, his messy hair blown back by a digital wind. The air is filled with glowing data-shards. Triumphant but chaotic tone.",
+          "camera_movement": "wide shot expanding as the light grows",
+          "action_description": "Arya triggers the memory broadcast, sending a massive signal wave across the entire city.",
+          "dialogue": [
+            "Arya: Do it! Let them see everything!"
+          ],
+          "audio": {
+            "bgm": "Orchestral swell with heavy electronic bass",
+            "sfx": "Glass shattering, massive electrical discharge, roaring wind"
           },
-          {
-            "segment_index": 2,
-            "visual_prompt": "[Cabin Exterior - Remote Pacific Northwest Forest] [Dense fog, cold blue-grey palette]. Marcus runs through the trees, branches catching on his leather jacket. The fog is so thick he can barely see his own hands. Disorienting chase.",
-            "camera_movement": "POV shot running through brush",
-            "action_description": "Marcus becomes hopelessly lost in the dense, fog-shrouded forest.",
-            "dialogue": [
-              "Marcus Cole: Help! Is anyone there?!"
-            ],
-            "audio": {
-              "bgm": "Dissonant, swirling soundscape",
-              "sfx": "Twigs snapping, rain hitting leaves, distant, echoing laughter"
-            }
+          "actor_ids": [
+            "actor_001",
+            "actor_002"
+          ],
+          "theme_id": "theme_004",
+          "video_gcs_uri": null,
+          "video_url": null
+        },
+        {
+          "segment_index": 2,
+          "visual_prompt": "[The Memory Interface — Subjective Digital Space] [Stark ethereal white light clashing with sepia]. Across the city, the screens and holographic ads flicker and change. The 'sanitized' white city elements are overwritten by 'raw' sepia memories of the past. Thousands of citizens in the streets below look up, their faces illuminated by the truth. Surreal cinematic montage.",
+          "camera_movement": "fast-paced montage of city screens changing",
+          "action_description": "The broadcast reaches the citizens, overriding corporate propaganda with the true history of the city.",
+          "dialogue": [],
+          "audio": {
+            "bgm": "A choir-like synth melody rising above the noise",
+            "sfx": "Static, thousands of voices whispering, digital chime"
           },
-          {
-            "segment_index": 3,
-            "visual_prompt": "[Cabin Exterior - Remote Pacific Northwest Forest] [Near-total darkness and fog]. Marcus stops, gasping for air. He looks around; every direction looks the same. A silver-streaked figure appears briefly in the fog behind him. Finality.",
-            "camera_movement": "slow 360-degree pan of the fog",
-            "action_description": "Marcus realizes he is being hunted in a landscape he cannot escape.",
-            "dialogue": [
-              "Elena Voss: (Voice echoing) The forest always gets its due."
-            ],
-            "audio": {
-              "bgm": "Music fades to a low, ominous hum",
-              "sfx": "Silence, then the sound of a single footstep on a wet leaf"
-            }
-          }
-        ],
-        "choices": [],
-        "is_ending": true
-      },
-      {
-        "scene_id": "scene_007",
-        "title": "The Devil's Bargain",
-        "segments": [
-          {
-            "segment_index": 1,
-            "visual_prompt": "[Cabin Interior - Living Room] [Dying fireplace embers, deep orange glow]. Marcus is on his knees, hands raised. Elena stands over him, the poker lowered but still in hand. A heavy, moral weight hangs in the air. Desperate negotiation.",
-            "camera_movement": "low angle looking up at Elena",
-            "action_description": "Marcus desperately bargains for his life, promising his silence.",
-            "dialogue": [
-              "Marcus Cole: No one has to know. The truth dies here. Just let me go."
-            ],
-            "audio": {
-              "bgm": "Tense, low-volume cello",
-              "sfx": "Hissing of the dying fire, wind rattling the window"
-            }
+          "actor_ids": [],
+          "theme_id": "theme_003",
+          "video_gcs_uri": null,
+          "video_url": null
+        },
+        {
+          "segment_index": 3,
+          "visual_prompt": "[Neo-Jakarta High-Altitude Exterior — The Comm Tower Base] [Magenta and cyan neon through rain]. Arya and Kai stand by the shattered window, watching the city below flicker like a dying star before waking up. The corporate drones outside hover aimlessly, their signals disrupted. Arya's cybernetic eyes glow brightly. Hopeful but painful resolution.",
+          "camera_movement": "slow pull back from Arya and Kai to show the entire glowing city",
+          "action_description": "The city wakes up to the truth as Arya and Kai witness the beginning of the revolution.",
+          "dialogue": [
+            "Kai: They're waking up, Arya.",
+            "Arya: It's a start."
+          ],
+          "audio": {
+            "bgm": "Epic, resonant synth theme fading to a single note",
+            "sfx": "Rain settling, distant cheering, the hum of the city changing pitch"
           },
-          {
-            "segment_index": 2,
-            "visual_prompt": "[Cabin Exterior - Remote Pacific Northwest Forest] [Cold blue-grey morning light]. Marcus walks toward his car, his movements stiff. He looks back at the cabin one last time. Elena stands on the porch, a dark silhouette against the wood. Somber resolution.",
-            "camera_movement": "wide shot of Marcus walking to his car",
-            "action_description": "Marcus leaves the cabin, alive but forever changed by the encounter.",
-            "dialogue": [],
-            "audio": {
-              "bgm": "Melancholy, hollow synth melody",
-              "sfx": "Car door opening, engine turnover, tires on gravel"
-            }
+          "actor_ids": [
+            "actor_001",
+            "actor_002"
+          ],
+          "theme_id": "theme_001",
+          "video_gcs_uri": null,
+          "video_url": null
+        }
+      ],
+      "choices": [],
+      "is_ending": true,
+      "thumbnail_gcs_uri": null,
+      "thumbnail_url": null
+    },
+    {
+      "scene_id": "scene_007",
+      "title": "Sanitized Peace",
+      "segments": [
+        {
+          "segment_index": 1,
+          "visual_prompt": "[Transmitter Control Deck — Tactical Lockdown] [Harsh blue light from terminals and sparks]. Arya raises her pulse pistol and fires three shots directly into the glowing transmitter core. The machinery explodes in a shower of sparks and black smoke. Kai falls back, his face a mask of utter devastation and betrayal. Cold, decisive tone.",
+          "camera_movement": "static medium shot on the explosion and Kai's reaction",
+          "action_description": "Arya chooses to destroy the transmitter to prevent the chaos of the truth.",
+          "dialogue": [
+            "Kai: No! What have you done?",
+            "Arya: I'm saving the city from itself."
+          ],
+          "audio": {
+            "bgm": "Sudden stop of music, replaced by high-pitched ringing",
+            "sfx": "Three pulse pistol shots, metallic explosion, Kai's shout"
           },
-          {
-            "segment_index": 3,
-            "visual_prompt": "[Inside Car] [Natural, flat daylight]. Marcus drives away, looking in the rearview mirror. He reaches for his passenger seat but finds it empty. His recorder is gone. His face pales as the realization hits. Dark ending.",
-            "camera_movement": "close-up on Marcus in the rearview mirror",
-            "action_description": "Marcus realizes he left the evidence behind, becoming Elena's silent accomplice.",
-            "dialogue": [
-              "Marcus Cole: What have I done?"
-            ],
-            "audio": {
-              "bgm": "Dark, swelling orchestral finale",
-              "sfx": "Wind noise through the car window, rain stopping"
-            }
-          }
-        ],
-        "choices": [],
-        "is_ending": true
-      }
-    ]
-  },
-  "error": null
+          "actor_ids": [
+            "actor_001",
+            "actor_002"
+          ],
+          "theme_id": "theme_004",
+          "video_gcs_uri": null,
+          "video_url": null
+        },
+        {
+          "segment_index": 2,
+          "visual_prompt": "[Abandoned Communications Tower — Main Transmitter Hub] [Cold flickering fluorescents]. Corporate strike team members in heavy black armor breach the room, their red searchlights cutting through the smoke. Arya stands with her hands up, her matte-black coat dusted with soot. Kai is being forced to the ground by soldiers. Clinical and militaristic.",
+          "camera_movement": "handheld follow shot of the soldiers entering",
+          "action_description": "The corporate strike team enters and secures the area, arresting Kai and taking Arya into custody.",
+          "dialogue": [
+            "Soldier: Sector secured. Target neutralized."
+          ],
+          "audio": {
+            "bgm": "Low, rhythmic tactical drum beat",
+            "sfx": "Heavy boots, glass crunching, shouted orders"
+          },
+          "actor_ids": [
+            "actor_001",
+            "actor_002"
+          ],
+          "theme_id": "theme_002",
+          "video_gcs_uri": null,
+          "video_url": null
+        },
+        {
+          "segment_index": 3,
+          "visual_prompt": "[Neo-Jakarta High-Altitude Exterior — The Comm Tower Base] [Magenta neon through thick rain]. A corporate transport ship flies away from the tower, its lights disappearing into the fog. Below, the city of Neo-Jakarta looks perfectly peaceful and curated, its dark history still hidden under the rain. Arya's face is seen through the transport window, cold and haunted. Tragic ending.",
+          "camera_movement": "wide shot of the transport flying into the distance",
+          "action_description": "Arya returns to her life as a corporate asset, the truth destroyed and the status quo maintained.",
+          "dialogue": [
+            "Arya: (Internal monologue) It's better this way. A quiet lie is better than a bloody truth."
+          ],
+          "audio": {
+            "bgm": "Low, dark ambient synth pad",
+            "sfx": "Engine hum, heavy rain, distant thunder"
+          },
+          "actor_ids": [
+            "actor_001"
+          ],
+          "theme_id": "theme_001",
+          "video_gcs_uri": null,
+          "video_url": null
+        }
+      ],
+      "choices": [],
+      "is_ending": true,
+      "thumbnail_gcs_uri": null,
+      "thumbnail_url": null
+    }
+  ]
 }
