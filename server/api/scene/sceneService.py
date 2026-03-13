@@ -405,6 +405,23 @@ async def generate_scene_videos(
     if seg1_video_bytes is not None:
         await _save_scene_thumbnail(session_id, story_id, scene, seg1_video_bytes)
 
+    # Segment 3 is the full concatenated video (each segment extends the previous).
+    # Store it as the scene-level video so callers have a single playback URI.
+    last_segment = sorted(scene.segments, key=lambda s: s.segment_index)[-1]
+    if last_segment.video_gcs_uri and last_segment.video_url:
+        scene.video_gcs_uri = last_segment.video_gcs_uri
+        scene.video_url = last_segment.video_url
+        await firestore_service.update_scene_video(
+            story_id=story_id,
+            scene_id=scene.scene_id,
+            gcs_uri=last_segment.video_gcs_uri,
+            public_url=last_segment.video_url,
+        )
+        logger.info(
+            "Scene %s video (segment 3 = full scene): %s",
+            scene.scene_id, last_segment.video_gcs_uri,
+        )
+
 
 # ---------------------------------------------------------------------------
 # Apixo-based video generation

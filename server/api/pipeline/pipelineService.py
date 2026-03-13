@@ -9,11 +9,10 @@ Orchestrates the complete flow:
 
 import asyncio
 
-from models import SessionState, SessionResponse, QAPair
+from models import SessionState, SessionResponse
 from api.story_board.storyBoardService import storyBoardService
 from api.actor.actorService import generate_and_save_actor_images_apixo
 from api.theme.themeService import generate_and_save_theme_images_apixo
-from api.scene.sceneService import generate_scene_videos_apixo
 from api.firestore.firestoreService import firestore_service
 from api.utils import _to_response
 
@@ -119,33 +118,13 @@ class PipelineService:
                 # After gather, storyboard.actors[*].anchor_image_gcs_uri and
                 # storyboard.themes[*].reference_image_gcs_uri are populated in-memory.
 
-                # ── Phase 3: Scene video generation (all scenes in parallel) ──
-                session.status = "generating_videos"
-                await firestore_service.update_session_status(
-                    session.session_id, "generating_videos"
-                )
-                await firestore_service.update_storyboard_status(
-                    storyboard.story_id, "generating_videos"
-                )
-
-                await asyncio.gather(*[
-                    generate_scene_videos_apixo(
-                        session_id=session.session_id,
-                        story_id=storyboard.story_id,
-                        scene=scene,
-                        actors=storyboard.actors,
-                        themes=storyboard.themes,
-                    )
-                    for scene in storyboard.scenes
-                ])
-
                 # ── Done ──────────────────────────────────────────────────────
-                session.status = "generation_complete"
+                session.status = "storyboard_complete"
                 await firestore_service.update_session_status(
-                    session.session_id, "generation_complete"
+                    session.session_id, "storyboard_complete"
                 )
                 await firestore_service.update_storyboard_status(
-                    storyboard.story_id, "assets_ready"
+                    storyboard.story_id, "storyboard_complete"
                 )
 
             except Exception as e:
