@@ -165,6 +165,22 @@ class FirestoreService:
                 break
         await doc_ref.update({"scenes": data["scenes"]})
 
+    async def update_scene_video(
+        self, story_id: str, scene_id: str, gcs_uri: str, public_url: str
+    ) -> None:
+        """Write the GCS URI and public URL of a merged scene video into the scenes array in-place."""
+        doc_ref = self._db.collection("storyboards").document(story_id)
+        doc = await doc_ref.get()
+        if not doc.exists:
+            return
+        data = doc.to_dict()
+        for scene in data.get("scenes", []):
+            if scene.get("scene_id") == scene_id:
+                scene["video_gcs_uri"] = gcs_uri
+                scene["video_url"] = public_url
+                break
+        await doc_ref.update({"scenes": data["scenes"]})
+
     async def update_scene_thumbnail(
         self, story_id: str, scene_id: str, gcs_uri: str, public_url: str
     ) -> None:

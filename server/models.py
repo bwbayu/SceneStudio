@@ -40,6 +40,8 @@ class Scene(BaseModel):
     is_ending: bool = Field(default=False, description="True if this is an ending scene")
     thumbnail_gcs_uri: Optional[str] = Field(default=None, description="GCS URI (gs://...) for scene thumbnail; frame extracted from segment 1 video")
     thumbnail_url: Optional[str] = Field(default=None, description="Signed HTTPS URL for frontend display; regenerated on each session fetch")
+    video_gcs_uri: Optional[str] = Field(default=None, description="GCS URI (gs://...) for the merged scene video (all 3 segments concatenated)")
+    video_url: Optional[str] = Field(default=None, description="Public HTTPS URL for scene video playback")
 
 
 class Actor(BaseModel):

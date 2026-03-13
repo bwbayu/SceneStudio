@@ -13,6 +13,8 @@ import asyncio
 import io
 import logging
 import os
+import subprocess
+import tempfile
 import time
 
 import av
@@ -190,6 +192,98 @@ async def _save_scene_thumbnail(
         )
 
 
+def _merge_segment_videos(video_bytes_list: list[bytes]) -> bytes:
+    """
+    Merge a list of MP4 video byte segments into a single MP4 using FFmpeg concat demuxer.
+    """
+    temp_inputs: list[str] = []
+    list_path: str | None = None
+    out_path: str | None = None
+    try:
+        # Write each segment bytes to a named temp file
+        for vb in video_bytes_list:
+            fd, path = tempfile.mkstemp(suffix=".mp4")
+            with os.fdopen(fd, "wb") as f:
+                f.write(vb)
+            temp_inputs.append(path)
+
+        # Write the FFmpeg concat list file
+        fd, list_path = tempfile.mkstemp(suffix=".txt")
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            for p in temp_inputs:
+                abs_path = os.path.abspath(p).replace("\\", "/")
+                f.write(f"file '{abs_path}'\n")
+
+        # Create empty output temp file
+        fd, out_path = tempfile.mkstemp(suffix=".mp4")
+        os.close(fd)
+
+        command = [
+            "ffmpeg", "-y",
+            "-f", "concat",
+            "-safe", "0",
+            "-i", list_path,
+            "-c", "copy",
+            out_path,
+        ]
+        result = subprocess.run(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"FFmpeg merge failed (exit {result.returncode}):\n{result.stderr.decode()}"
+            )
+
+        with open(out_path, "rb") as f:
+            return f.read()
+    finally:
+        for p in temp_inputs:
+            try:
+                os.remove(p)
+            except Exception:
+                pass
+        for p in [list_path, out_path]:
+            if p:
+                try:
+                    os.remove(p)
+                except Exception:
+                    pass
+
+
+async def _save_scene_video(
+    session_id: str,
+    story_id: str,
+    scene: Scene,
+    video_bytes_list: list[bytes],
+) -> None:
+    """
+    Merge all segment videos, upload as the scene video, and persist to Firestore.
+    Errors are logged and swallowed so a merge failure never blocks the pipeline.
+    """
+    try:
+        loop = asyncio.get_running_loop()
+        merged_bytes = await loop.run_in_executor(
+            None, _merge_segment_videos, video_bytes_list
+        )
+        gcs_uri = await gcs_service.upload_scene_video(session_id, scene.scene_id, merged_bytes)
+        video_url = gcs_service.get_public_url_from_gcs_uri(gcs_uri)
+        scene.video_gcs_uri = gcs_uri
+        scene.video_url = video_url
+        await firestore_service.update_scene_video(
+            story_id=story_id,
+            scene_id=scene.scene_id,
+            gcs_uri=gcs_uri,
+            public_url=video_url,
+        )
+        logger.info("Scene %s merged video: %s", scene.scene_id, gcs_uri)
+    except Exception:
+        logger.exception(
+            "Failed to merge/upload scene video for scene %s; skipping", scene.scene_id
+        )
+
+
 async def generate_scene_videos(
     session_id: str,
     story_id: str,
@@ -356,6 +450,7 @@ async def generate_scene_videos_apixo(
     Persists each video_gcs_uri to Firestore after generation.
     """
     seg1_video_bytes: bytes | None = None
+    all_segment_bytes: list[bytes] = []
 
     for segment in sorted(scene.segments, key=lambda s: s.segment_index):
         logger.info(
@@ -379,6 +474,8 @@ async def generate_scene_videos_apixo(
         if segment.segment_index == 1:
             seg1_video_bytes = video_bytes
 
+        all_segment_bytes.append(video_bytes)
+
         gcs_uri = await _upload_segment_video(
             session_id, scene.scene_id, segment.segment_index, video_bytes
         )
@@ -401,3 +498,6 @@ async def generate_scene_videos_apixo(
 
     if seg1_video_bytes is not None:
         await _save_scene_thumbnail(session_id, story_id, scene, seg1_video_bytes)
+
+    if all_segment_bytes:
+        await _save_scene_video(session_id, story_id, scene, all_segment_bytes)
