@@ -10,9 +10,12 @@ All videos are landscape (16:9), 720p resolution.
 """
 
 import asyncio
+import io
 import logging
 import os
 import time
+
+import av
 
 from google import genai
 from google.genai import types
@@ -131,6 +134,25 @@ async def _upload_segment_video(
     return gcs_service.to_gcs_uri(object_path)
 
 
+def _extract_first_frame_jpeg(video_bytes: bytes) -> bytes:
+    """
+    Extract the first keyframe from in-memory MP4 bytes and return as JPEG bytes.
+    Uses PyAV for decoding (no temp file, no system ffmpeg required).
+    """
+    buf = io.BytesIO(video_bytes)
+    with av.open(buf, format="mp4") as container:
+        video_stream = next((s for s in container.streams if s.type == "video"), None)
+        if video_stream is None:
+            raise RuntimeError("No video stream found in segment bytes")
+        video_stream.codec_context.skip_frame = "NONKEY"
+        for frame in container.decode(video_stream):
+            pil_image = frame.to_image()
+            output = io.BytesIO()
+            pil_image.save(output, format="JPEG", quality=85)
+            return output.getvalue()
+    raise RuntimeError("No frames could be decoded from segment video bytes")
+
+
 async def generate_scene_videos(
     session_id: str,
     story_id: str,
@@ -146,6 +168,7 @@ async def generate_scene_videos(
     Persists each video_gcs_uri to Firestore after generation.
     """
     previous_video = None
+    seg1_video_bytes: bytes | None = None
 
     for segment in sorted(scene.segments, key=lambda s: s.segment_index):
         logger.info(
@@ -219,6 +242,10 @@ async def generate_scene_videos(
         client.files.download(file=generated_video.video)
         video_bytes = generated_video.video.video_bytes
 
+        # Capture segment 1 bytes in-memory for thumbnail extraction later
+        if segment.segment_index == 1:
+            seg1_video_bytes = video_bytes
+
         # Upload to our GCS bucket
         gcs_uri = await _upload_segment_video(
             session_id, scene.scene_id, segment.segment_index, video_bytes
@@ -239,3 +266,27 @@ async def generate_scene_videos(
             "Segment %d of scene %s generated: %s",
             segment.segment_index, scene.scene_id, gcs_uri,
         )
+
+    # Capture first keyframe from segment 1 as the scene thumbnail
+    if seg1_video_bytes is not None:
+        try:
+            loop = asyncio.get_running_loop()
+            thumbnail_jpeg = await loop.run_in_executor(
+                None, _extract_first_frame_jpeg, seg1_video_bytes
+            )
+            thumbnail_gcs_uri = await gcs_service.upload_scene_thumbnail(
+                session_id=session_id,
+                scene_id=scene.scene_id,
+                image_bytes=thumbnail_jpeg,
+            )
+            await firestore_service.update_scene_thumbnail(
+                story_id=story_id,
+                scene_id=scene.scene_id,
+                gcs_uri=thumbnail_gcs_uri,
+            )
+            scene.thumbnail_gcs_uri = thumbnail_gcs_uri
+            logger.info("Scene %s thumbnail: %s", scene.scene_id, thumbnail_gcs_uri)
+        except Exception:
+            logger.exception(
+                "Failed to generate thumbnail for scene %s; skipping", scene.scene_id
+            )
