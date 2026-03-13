@@ -65,6 +65,10 @@ class GCSStorageService:
         """Object path for the storyboard thumbnail image."""
         return f"sessions/{session_id}/thumbnail.jpg"
 
+    def scene_thumbnail_path(self, session_id: str, scene_id: str) -> str:
+        """Object path for a scene-level thumbnail image."""
+        return f"sessions/{session_id}/scenes/{scene_id}/thumbnail.jpg"
+
     def segment_output_prefix(self, session_id: str, scene_id: str, segment_index: int) -> str:
         """
         GCS prefix (with trailing slash) to pass as output_gcs_uri in a Veo generate_videos call.
@@ -126,6 +130,21 @@ class GCSStorageService:
         Returns the GCS URI (gs://...) — store this in StoryBoard.thumbnail_gcs_uri.
         """
         object_path = self.thumbnail_path(session_id)
+        await self._upload_bytes(object_path, image_bytes, content_type)
+        return self.to_gcs_uri(object_path)
+
+    async def upload_scene_thumbnail(
+        self,
+        session_id: str,
+        scene_id: str,
+        image_bytes: bytes,
+        content_type: str = "image/jpeg",
+    ) -> str:
+        """
+        Upload a scene thumbnail image to GCS.
+        Returns the GCS URI (gs://...) — store this in Scene.thumbnail_gcs_uri.
+        """
+        object_path = self.scene_thumbnail_path(session_id, scene_id)
         await self._upload_bytes(object_path, image_bytes, content_type)
         return self.to_gcs_uri(object_path)
 
@@ -222,6 +241,8 @@ class GCSStorageService:
                 )
 
         for scene in storyboard.scenes:
+            if scene.thumbnail_gcs_uri:
+                scene.thumbnail_url = self.get_signed_url_from_gcs_uri(scene.thumbnail_gcs_uri)
             for segment in scene.segments:
                 if segment.video_gcs_uri:
                     segment.video_url = self.get_signed_url_from_gcs_uri(segment.video_gcs_uri)

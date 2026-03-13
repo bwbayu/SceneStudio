@@ -38,6 +38,8 @@ class Scene(BaseModel):
     segments: list[Segment] = Field(description="Exactly 3 sequential video segments")
     choices: list[Choice] = Field(description="Player choices at end of scene (empty if is_ending=True)")
     is_ending: bool = Field(default=False, description="True if this is an ending scene")
+    thumbnail_gcs_uri: Optional[str] = Field(default=None, description="GCS URI (gs://...) for scene thumbnail; frame extracted from segment 1 video")
+    thumbnail_url: Optional[str] = Field(default=None, description="Signed HTTPS URL for frontend display; regenerated on each session fetch")
 
 
 class Actor(BaseModel):
