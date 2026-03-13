@@ -63,6 +63,10 @@ class GCSStorageService:
         """Object path for a scene-level thumbnail image."""
         return f"sessions/{session_id}/scenes/{scene_id}/thumbnail.jpg"
 
+    def scene_video_path(self, session_id: str, scene_id: str) -> str:
+        """Object path for the merged scene video (all segments concatenated)."""
+        return f"sessions/{session_id}/scenes/{scene_id}/video.mp4"
+
     def segment_output_prefix(self, session_id: str, scene_id: str, segment_index: int) -> str:
         """
         GCS prefix (with trailing slash) to pass as output_gcs_uri in a Veo generate_videos call.
@@ -140,6 +144,20 @@ class GCSStorageService:
         """
         object_path = self.scene_thumbnail_path(session_id, scene_id)
         await self._upload_bytes(object_path, image_bytes, content_type)
+        return self.to_gcs_uri(object_path)
+
+    async def upload_scene_video(
+        self,
+        session_id: str,
+        scene_id: str,
+        video_bytes: bytes,
+    ) -> str:
+        """
+        Upload a merged scene video to GCS.
+        Returns the GCS URI (gs://...) — store this in Scene.video_gcs_uri.
+        """
+        object_path = self.scene_video_path(session_id, scene_id)
+        await self._upload_bytes(object_path, video_bytes, "video/mp4")
         return self.to_gcs_uri(object_path)
 
     async def _upload_bytes(self, object_path: str, data: bytes, content_type: str) -> None:
