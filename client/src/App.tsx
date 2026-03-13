@@ -70,30 +70,26 @@ function App() {
     setCurrentView('editor');
   };
 
-  const handleUpdateStories = (updatedStories: any[]) => {
-    setStories(updatedStories);
-  };
-
   const activeStory = stories.find(s => s.id === activeStoryId);
 
   return (
     <div className="bg-mesh noise-overlay relative min-h-screen overflow-x-hidden pt-16">
-      <Navbar onCreateStory={handleOpenCreateModal} />
+      <Navbar onCreateStory={handleOpenCreateModal} showCreateStory={currentView === 'dashboard'} />
       
       {currentView === 'dashboard' ? (
-        <Dashboard 
-          stories={stories} 
-          setStories={handleUpdateStories}
-          onCreateStory={handleOpenCreateModal} 
+        <Dashboard
+          stories={stories}
+          onCreateStory={handleOpenCreateModal}
           onSelectStory={(id) => {
             setActiveStoryId(id);
             setCurrentView('editor');
           }}
         />
       ) : (
-        <SceneEditor 
-          story={activeStory} 
-          onBack={() => setCurrentView('dashboard')} 
+        <SceneEditor
+          story={activeStory}
+          onBack={() => setCurrentView('dashboard')}
+          isLoadingStoryboard={false}
         />
       )}
       

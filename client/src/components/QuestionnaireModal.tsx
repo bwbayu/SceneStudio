@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { XIcon, MagicIcon, ChevronDownIcon } from './Icons';
+import { useState } from 'react';
+import { XIcon, MagicIcon } from './Icons';
 
 interface Question {
     question: string;
@@ -11,25 +11,14 @@ interface QuestionnaireModalProps {
     isOpen: boolean;
     onClose: () => void;
     questions: Question[];
-    onGenerate: (answers: any) => void;
+    onGenerate: (answers: Record<number, { selected: string[]; otherInput: string }>) => void;
 }
 
 export default function QuestionnaireModal({ isOpen, onClose, questions, onGenerate }: QuestionnaireModalProps) {
     const [activeTab, setActiveTab] = useState(0);
-    const [answers, setAnswers] = useState<Record<number, { selected: string[], otherInput: string }>>({});
-
-    useEffect(() => {
-        if (isOpen) {
-            // Initialize handles for all questions if not exists
-            const initialAnswers = { ...answers };
-            questions.forEach((_, idx) => {
-                if (!initialAnswers[idx]) {
-                    initialAnswers[idx] = { selected: [], otherInput: '' };
-                }
-            });
-            setAnswers(initialAnswers);
-        }
-    }, [isOpen, questions]);
+    const [answers, setAnswers] = useState<Record<number, { selected: string[], otherInput: string }>>(
+        () => Object.fromEntries(questions.map((_, idx) => [idx, { selected: [], otherInput: '' }]))
+    );
 
     if (!isOpen) return null;
 
@@ -59,7 +48,7 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
     const currentAnswer = answers[activeTab] || { selected: [], otherInput: '' };
 
     return (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-150 flex items-center justify-center p-4">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/90 backdrop-blur-md animate-[fade-in]"
@@ -67,20 +56,20 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
             />
 
             {/* Modal Container */}
-            <div className="glass relative w-full max-w-2xl animate-[scale-in] overflow-hidden rounded-3xl border border-[var(--color-border-default)] bg-[var(--color-bg-card)] shadow-2xl">
+            <div className="glass relative w-full max-w-2xl animate-[scale-in] overflow-hidden rounded-3xl border border-border-default bg-bg-card shadow-2xl">
 
                 {/* Header with Tabs */}
                 <div className="border-b border-white/5 bg-white/5 px-8 pt-8 pb-4">
                     <div className="mb-6 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="rounded-xl bg-[var(--color-accent-primary)]/10 p-2 border border-[var(--color-accent-primary)]/20">
-                                <MagicIcon className="h-4 w-4 text-[var(--color-accent-primary)]" />
+                            <div className="rounded-xl bg-(--color-accent-primary)/10 p-2 border border-(--color-accent-primary)/20">
+                                <MagicIcon className="h-4 w-4 text-(--color-accent-primary)" />
                             </div>
                             <h2 className="text-lg font-bold text-white uppercase tracking-wider" style={{ fontFamily: "'Sora', sans-serif" }}>
                                 Story Questionnaire
                             </h2>
                         </div>
-                        <button onClick={onClose} className="rounded-full bg-white/5 p-2 text-[var(--color-text-muted)] hover:bg-white/10 transition-all">
+                        <button onClick={onClose} className="rounded-full bg-white/5 p-2 text-text-muted hover:bg-white/10 transition-all">
                             <XIcon className="h-5 w-5" />
                         </button>
                     </div>
@@ -91,9 +80,9 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
                             <button
                                 key={idx}
                                 onClick={() => setActiveTab(idx)}
-                                className={`flex-shrink-0 rounded-full px-5 py-2 text-[10px] font-black tracking-widest uppercase transition-all duration-300 ${activeTab === idx
-                                        ? 'bg-[var(--color-accent-primary)] text-black shadow-lg shadow-[var(--color-accent-primary)]/20 scale-105'
-                                        : 'bg-white/5 text-[var(--color-text-muted)] hover:bg-white/10 hover:text-white'
+                                className={`shrink-0 rounded-full px-5 py-2 text-[10px] font-black tracking-widest uppercase transition-all duration-300 ${activeTab === idx
+                                        ? 'bg-(--color-accent-primary) text-black shadow-lg shadow-(--color-accent-primary)/20 scale-105'
+                                        : 'bg-white/5 text-text-muted hover:bg-white/10 hover:text-white'
                                     }`}
                                 style={{ fontFamily: "'Sora', sans-serif" }}
                             >
@@ -104,7 +93,7 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
                 </div>
 
                 {/* Question Body */}
-                <div className="min-h-[400px] p-8">
+                <div className="min-h-100 p-8">
                     <div key={activeTab} className="animate-[fade-in-up]">
                         <h3 className="mb-8 text-xl font-bold leading-tight text-white" style={{ fontFamily: "'Sora', sans-serif" }}>
                             {currentQuestion.question}
@@ -117,8 +106,8 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
                                     <label
                                         key={idx}
                                         className={`flex cursor-pointer items-center gap-4 rounded-2xl border p-5 transition-all duration-300 hover:scale-[1.01] ${isSelected
-                                                ? 'border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/5 shadow-lg shadow-[var(--color-accent-primary)]/5'
-                                                : 'border-white/5 bg-white/[0.02] hover:bg-white/5'
+                                                ? 'border-(--color-accent-primary) bg-(--color-accent-primary)/5 shadow-lg shadow-(--color-accent-primary)/5'
+                                                : 'border-white/5 bg-white/2 hover:bg-white/5'
                                             }`}
                                     >
                                         <input
@@ -128,7 +117,7 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
                                             onChange={() => handleOptionToggle(activeTab, option, currentQuestion.multi_select)}
                                         />
                                         {/* Custom Radio/Checkbox */}
-                                        <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border-2 transition-all duration-300 ${isSelected ? 'border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]' : 'border-white/10'
+                                        <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border-2 transition-all duration-300 ${isSelected ? 'border-(--color-accent-primary) bg-(--color-accent-primary)' : 'border-white/10'
                                             }`}>
                                             {isSelected && (
                                                 <div className={currentQuestion.multi_select ? "text-black" : "h-2 w-2 rounded-full bg-black"} >
@@ -140,7 +129,7 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
                                                 </div>
                                             )}
                                         </div>
-                                        <span className={`text-sm font-medium transition-colors ${isSelected ? 'text-white' : 'text-[var(--color-text-secondary)]'}`} style={{ fontFamily: "'Outfit', sans-serif" }}>
+                                        <span className={`text-sm font-medium transition-colors ${isSelected ? 'text-white' : 'text-text-secondary'}`} style={{ fontFamily: "'Outfit', sans-serif" }}>
                                             {option}
                                         </span>
                                     </label>
@@ -151,8 +140,8 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
                             <div className="space-y-4 pt-4">
                                 <label
                                     className={`flex cursor-pointer items-center gap-4 rounded-2xl border p-5 transition-all duration-300 ${currentAnswer.selected.includes('Other')
-                                            ? 'border-[var(--color-accent-rose)] bg-[var(--color-accent-rose)]/5'
-                                            : 'border-white/5 bg-white/[0.02] hover:bg-white/5'
+                                            ? 'border-accent-rose bg-accent-rose/5'
+                                            : 'border-white/5 bg-white/2 hover:bg-white/5'
                                         }`}
                                 >
                                     <input
@@ -161,7 +150,7 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
                                         checked={currentAnswer.selected.includes('Other')}
                                         onChange={() => handleOptionToggle(activeTab, 'Other', currentQuestion.multi_select)}
                                     />
-                                    <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border-2 transition-all duration-300 ${currentAnswer.selected.includes('Other') ? 'border-[var(--color-accent-rose)] bg-[var(--color-accent-rose)]' : 'border-white/10'
+                                    <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border-2 transition-all duration-300 ${currentAnswer.selected.includes('Other') ? 'border-accent-rose bg-accent-rose' : 'border-white/10'
                                         }`}>
                                         {currentAnswer.selected.includes('Other') && (
                                             <div className={currentQuestion.multi_select ? "text-black" : "h-2 w-2 rounded-full bg-black"} >
@@ -173,7 +162,7 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
                                             </div>
                                         )}
                                     </div>
-                                    <span className={`text-sm font-medium ${currentAnswer.selected.includes('Other') ? 'text-white' : 'text-[var(--color-text-secondary)]'}`} style={{ fontFamily: "'Outfit', sans-serif" }}>
+                                    <span className={`text-sm font-medium ${currentAnswer.selected.includes('Other') ? 'text-white' : 'text-text-secondary'}`} style={{ fontFamily: "'Outfit', sans-serif" }}>
                                         Other (Write your own...)
                                     </span>
                                 </label>
@@ -187,7 +176,7 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
                                                 [activeTab]: { ...prev[activeTab], otherInput: e.target.value }
                                             }))}
                                             placeholder="Type your manual details here..."
-                                            className="w-full rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white outline-none focus:border-[var(--color-accent-rose)]/50 transition-all min-h-[100px]"
+                                            className="w-full rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white outline-none focus:border-accent-rose/50 transition-all min-h-25"
                                             style={{ fontFamily: "'Outfit', sans-serif" }}
                                         />
                                     </div>
@@ -219,7 +208,7 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
 
                     <button
                         onClick={() => onGenerate(answers)}
-                        className="group relative flex items-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-accent-secondary)] px-10 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-black shadow-xl shadow-[var(--color-accent-primary)]/20 transition-all hover:scale-[1.05] active:scale-[0.95]"
+                        className="group relative flex items-center gap-3 overflow-hidden rounded-xl bg-linear-to-r from-(--color-accent-primary) to-(--color-accent-secondary) px-10 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-black shadow-xl shadow-(--color-accent-primary)/20 transition-all hover:scale-[1.05] active:scale-[0.95]"
                     >
                         Generate Story
                         <MagicIcon className="h-4 w-4" />
@@ -227,8 +216,8 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
                 </div>
 
                 {/* Decorative elements */}
-                <div className="absolute -right-20 -top-20 -z-10 h-64 w-64 rounded-full bg-[var(--color-accent-primary)] opacity-[0.03] blur-[100px]" />
-                <div className="absolute -bottom-20 -left-20 -z-10 h-64 w-64 rounded-full bg-[var(--color-accent-rose)] opacity-[0.03] blur-[100px]" />
+                <div className="absolute -right-20 -top-20 -z-10 h-64 w-64 rounded-full bg-(--color-accent-primary) opacity-[0.03] blur-[100px]" />
+                <div className="absolute -bottom-20 -left-20 -z-10 h-64 w-64 rounded-full bg-accent-rose opacity-[0.03] blur-[100px]" />
             </div>
         </div>
     );
