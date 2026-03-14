@@ -1,18 +1,23 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import {
   MagicIcon,
   ChevronDownIcon,
   XIcon,
+  LockIcon,
   ListIcon
 } from '../components/Icons';
 import AssetGenerationModal from '../components/AssetGenerationModal';
 import ProviderSelectionModal from '../components/ProviderSelectionModal';
-import ImagePreviewModal from '../components/ImagePreviewModal';
 import { useStoryboard } from '../hooks/useStoryboards';
 import { useGenerateSceneVideo, useSceneGenerationStatus } from '../hooks/useSceneGeneration';
-import { fetchSceneGenerationStatus } from '../api/services';
 import type { Scene as ApiScene } from '../api';
+
+interface SceneEditorProps {
+  storyId: string | null;
+  sessionId: string | null;
+  storyTitle: string;
+  onBack: () => void;
+}
 
 // Helper: build a tree structure from flat scene list using choices
 function buildSceneTree(scenes: ApiScene[]) {
@@ -104,25 +109,32 @@ function Connection({ fromId, toId, isActive, containerRef }: { fromId: string, 
   return (
     <g>
       {isActive && (
-        <path d={path} stroke="#ef4444" strokeWidth="6" fill="none" className="opacity-20 blur-md transition-all duration-500" />
+        <path d={path} stroke="var(--color-accent-rose)" strokeWidth="6" fill="none" className="opacity-20 blur-md transition-all duration-500" />
       )}
-      <path d={path} stroke={isActive ? '#ef4444' : 'var(--color-border-default)'} strokeWidth="2" fill="none" strokeLinecap="round" className="transition-all duration-500" />
-      <circle cx={coords.x2} cy={coords.y2} r="3" fill={isActive ? '#ef4444' : 'var(--color-border-default)'} className="transition-all duration-500" />
+      <path d={path} stroke={isActive ? 'var(--color-accent-rose)' : 'var(--color-border-default)'} strokeWidth="2" fill="none" strokeLinecap="round" className="transition-all duration-500" />
+      <circle cx={coords.x2} cy={coords.y2} r="3" fill={isActive ? 'var(--color-accent-rose)' : 'var(--color-border-default)'} className="transition-all duration-500" />
     </g>
   );
 }
 
-function SceneNode({ scene, isActive, isGenerating, hasVideo, onClick, onSelect, onGenerate }: {
-  scene: ApiScene, isActive: boolean, isGenerating: boolean, hasVideo: boolean,
+function SceneNode({ scene, isActive, isLocked, isGenerating, hasVideo, onClick, onSelect, onGenerate }: {
+  scene: ApiScene, isActive: boolean, isLocked: boolean, isGenerating: boolean, hasVideo: boolean,
   onClick: () => void, onSelect: () => void, onGenerate: () => void
 }) {
   return (
     <div
       data-scene-id={scene.scene_id}
-      onClick={() => { if (!isGenerating) onSelect(); }}
-      className={`group relative flex flex-col items-center animate-[card-enter] ${isGenerating ? 'cursor-default' : 'cursor-pointer'}`}
+      onClick={() => { if (!isLocked && !isGenerating) onSelect(); }}
+      className={`group relative flex flex-col items-center animate-[card-enter] ${isLocked ? 'opacity-40 grayscale cursor-not-allowed' : isGenerating ? 'cursor-default' : 'cursor-pointer'}`}
     >
-<div className={`absolute -inset-4 rounded-2xl blur-xl transition-all duration-500 ${isActive ? 'bg-(--color-accent-primary)/20' : 'bg-transparent'}`} />
+      {isLocked && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center">
+          <div className="rounded-full bg-black/60 p-3 backdrop-blur-sm border border-white/20">
+            <LockIcon className="h-8 w-8 text-white" />
+          </div>
+        </div>
+      )}
+      <div className={`absolute -inset-4 rounded-2xl blur-xl transition-all duration-500 ${isActive ? 'bg-(--color-accent-primary)/20' : 'bg-transparent'}`} />
       <div
         onClick={(e) => { e.stopPropagation(); if (!isGenerating) onSelect(); }}
         className={`relative w-48 overflow-hidden rounded-xl border p-4 transition-all duration-300 ${isActive
@@ -134,7 +146,7 @@ function SceneNode({ scene, isActive, isGenerating, hasVideo, onClick, onSelect,
         <div className="group/thumb relative mb-3 aspect-4/3 w-full overflow-hidden rounded-lg bg-white">
           <div
             onClick={(e) => { e.stopPropagation(); if (!isGenerating && hasVideo) onClick(); }}
-            className={`flex h-full w-full items-center justify-center p-4 text-center transition-transform ${!isGenerating ? 'hover:scale-[1.03] active:scale-[0.98] cursor-pointer' : 'cursor-default'}`}
+            className={`flex h-full w-full items-center justify-center p-4 text-center transition-transform ${!isGenerating && !isLocked ? 'hover:scale-[1.03] active:scale-[0.98] cursor-pointer' : 'cursor-default'}`}
           >
             {scene.thumbnail_url ? (
               <img
@@ -152,17 +164,15 @@ function SceneNode({ scene, isActive, isGenerating, hasVideo, onClick, onSelect,
             </span>
           </div>
 
-          {/* Play indicator when video exists */}
-          {hasVideo && !isGenerating && (
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/thumb:opacity-100 transition-opacity bg-black/30 rounded-lg pointer-events-none">
-              <svg className="h-8 w-8 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
+          {/* Generating overlay */}
+          {isGenerating && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-lg">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-(--color-accent-primary) border-t-transparent" />
             </div>
           )}
 
           {/* Generate button — show when no video and not generating */}
-          {!isGenerating && !hasVideo && (
+          {!isLocked && !isGenerating && !hasVideo && (
             <button
               onClick={(e) => { e.stopPropagation(); onGenerate(); }}
               className="absolute right-2 top-2 z-10 rounded-lg bg-black/70 px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-white opacity-0 transition-all group-hover/thumb:opacity-100 hover:bg-(--color-accent-primary) hover:text-black backdrop-blur-sm"
@@ -171,30 +181,29 @@ function SceneNode({ scene, isActive, isGenerating, hasVideo, onClick, onSelect,
             </button>
           )}
 
+          {/* Play indicator when video exists */}
+          {hasVideo && !isGenerating && (
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/thumb:opacity-100 transition-opacity bg-black/30 rounded-lg pointer-events-none">
+              <svg className="h-8 w-8 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          )}
         </div>
 
         <p className={`text-center text-xs font-black uppercase tracking-widest ${isActive ? 'text-(--color-accent-secondary)' : 'text-text-primary'}`}>
-          {scene.title}
+          {isGenerating
+            ? <span className="text-(--color-accent-primary) animate-pulse normal-case font-medium">Generating...</span>
+            : scene.title
+          }
         </p>
-
-        {/* Full-card generating overlay */}
-        {isGenerating && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 rounded-xl bg-black/75 backdrop-blur-sm">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-(--color-accent-primary) border-t-transparent" />
-            <span className="text-[9px] font-bold uppercase tracking-widest text-(--color-accent-primary) animate-pulse">Generating...</span>
-          </div>
-        )}
       </div>
     </div>
   );
 }
 
-export default function SceneEditor() {
-  const { storyId = null } = useParams<{ storyId: string }>();
-  const navigate = useNavigate();
+export default function SceneEditor({ storyId, sessionId, storyTitle, onBack }: SceneEditorProps) {
   const { data: storyboard, isLoading: isLoadingStoryboard } = useStoryboard(storyId);
-  const sessionId = storyboard?.session_id ?? null;
-  const storyTitle = storyboard?.title ?? 'Untitled';
   const generateSceneVideo = useGenerateSceneVideo();
 
   const scenes = useMemo(() => storyboard?.scenes ?? [], [storyboard]);
@@ -213,6 +222,7 @@ export default function SceneEditor() {
 
   const [activeSceneIdRaw, setActiveSceneId] = useState<string>('');
   const [selectedPathIdsRaw, setSelectedPathIds] = useState<string[]>([]);
+  const [unlockedIdsRaw, setUnlockedIds] = useState<string[]>([]);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [showChoices, setShowChoices] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -225,6 +235,8 @@ export default function SceneEditor() {
   // Derive effective values: use firstSceneId as default until user navigates
   const activeSceneId = activeSceneIdRaw || firstSceneId;
   const selectedPathIds = selectedPathIdsRaw.length > 0 ? selectedPathIdsRaw : (firstSceneId ? [firstSceneId] : []);
+  const unlockedIds = unlockedIdsRaw.length > 0 ? unlockedIdsRaw : (firstSceneId ? [firstSceneId] : []);
+
   const { levels, connections } = useMemo(() => buildSceneTree(scenes), [scenes]);
 
   const toggleSection = (section: string) => {
@@ -250,36 +262,15 @@ export default function SceneEditor() {
   const [isGenModalOpen, setIsGenModalOpen] = useState(false);
   const [genType, setGenType] = useState<'actor' | 'theme' | 'script' | 'scene'>('actor');
 
-  // Image Preview Modal State
-  const [previewImage, setPreviewImage] = useState<{ url: string; alt: string } | null>(null);
-
   // Provider Selection Modal States
   const [isProviderModalOpen, setIsProviderModalOpen] = useState(false);
   const [pendingGenerateSceneId, setPendingGenerateSceneId] = useState<string | null>(null);
   const [generatingSceneIds, setGeneratingSceneIds] = useState<Set<string>>(new Set());
 
-  // Restore polling on page load: check scenes without video_url
-  useEffect(() => {
-    if (!storyboard || !sessionId) return;
-    const scenesWithoutVideo = storyboard.scenes.filter(s => !s.video_url);
-    for (const scene of scenesWithoutVideo) {
-      fetchSceneGenerationStatus({ session_id: sessionId, scene_id: scene.scene_id })
-        .then(res => {
-          if (res.status === 'processing') {
-            setGeneratingSceneIds(prev => new Set(prev).add(scene.scene_id));
-          }
-        })
-        .catch(() => {});
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storyboard?.story_id]);
-
   // Scene generation polling — poll the first generating scene
   const pollingSceneId = generatingSceneIds.size > 0 ? Array.from(generatingSceneIds)[0] : null;
   const handleSceneGenChange = useCallback((data: { status: string }) => {
-    // On error: remove immediately (no video will ever come)
-    // On complete: storyboard invalidation triggers refetch; cleanup useEffect handles removal
-    if (data.status === 'error') {
+    if (data.status === 'complete' || data.status === 'error') {
       setGeneratingSceneIds(prev => {
         const next = new Set(prev);
         if (pollingSceneId) next.delete(pollingSceneId);
@@ -287,18 +278,6 @@ export default function SceneEditor() {
       });
     }
   }, [pollingSceneId]);
-
-  // Remove from generatingSceneIds once video_url is confirmed in storyboard data
-  useEffect(() => {
-    if (!storyboard) return;
-    setGeneratingSceneIds(prev => {
-      const next = new Set(prev);
-      for (const scene of storyboard.scenes) {
-        if (scene.video_url) next.delete(scene.scene_id);
-      }
-      return next;
-    });
-  }, [storyboard]);
   useSceneGenerationStatus(
     pollingSceneId ? sessionId : null,
     pollingSceneId,
@@ -417,6 +396,10 @@ export default function SceneEditor() {
     }
   };
 
+  const isSceneLocked = (sceneId: string) => {
+    return !unlockedIds.includes(sceneId);
+  };
+
   const isPathActive = (fromId: string, toId: string) => {
     const idx = selectedPathIds.indexOf(fromId);
     return idx !== -1 && selectedPathIds[idx + 1] === toId;
@@ -483,11 +466,7 @@ export default function SceneEditor() {
                     className="flex flex-nowrap gap-3 overflow-x-auto pb-2 scrollbar-none hover:scrollbar-thin scrollbar-thumb-[var(--color-border-hover)] scrollbar-track-transparent"
                   >
                     {actors.length > 0 ? actors.map(actor => (
-                      <div
-                        key={actor.actor_id}
-                        className={`relative shrink-0 overflow-hidden rounded-lg border border-white/10 shadow-lg ${actor.anchor_image_url ? 'cursor-pointer hover:border-white/30 transition-colors' : ''}`}
-                        onClick={() => actor.anchor_image_url && setPreviewImage({ url: actor.anchor_image_url, alt: actor.name })}
-                      >
+                      <div key={actor.actor_id} className="relative shrink-0 overflow-hidden rounded-lg border border-white/10 shadow-lg">
                         {actor.anchor_image_url ? (
                           <img
                             src={actor.anchor_image_url}
@@ -534,11 +513,7 @@ export default function SceneEditor() {
                     className="flex flex-nowrap overflow-x-auto scrollbar-none hover:scrollbar-thin"
                   >
                     {themes.length > 0 ? themes.map(theme => (
-                      <div
-                        key={theme.theme_id}
-                        className={`relative aspect-video w-full shrink-0 overflow-hidden ${theme.reference_image_url ? 'cursor-pointer' : ''}`}
-                        onClick={() => theme.reference_image_url && setPreviewImage({ url: theme.reference_image_url, alt: theme.location_name })}
-                      >
+                      <div key={theme.theme_id} className="relative aspect-video w-full shrink-0 overflow-hidden">
                         {theme.reference_image_url ? (
                           <img
                             src={theme.reference_image_url}
@@ -643,7 +618,7 @@ export default function SceneEditor() {
         }`}>
         <div className="flex items-center gap-3 pointer-events-auto">
           <button
-            onClick={() => navigate('/')}
+            onClick={onBack}
             className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-text-muted hover:text-(--color-accent-primary) transition-colors"
           >
             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -697,7 +672,8 @@ export default function SceneEditor() {
                     key={scene.scene_id}
                     scene={scene}
                     isActive={activeSceneId === scene.scene_id}
-                    isGenerating={generatingSceneIds.has(scene.scene_id) && !scene.video_url}
+                    isLocked={isSceneLocked(scene.scene_id)}
+                    isGenerating={generatingSceneIds.has(scene.scene_id)}
                     hasVideo={!!scene.video_url}
                     onClick={() => { handleSelectScene(scene.scene_id); if (scene.video_url) setIsPreviewOpen(true); }}
                     onSelect={() => handleSelectScene(scene.scene_id)}
@@ -786,6 +762,7 @@ export default function SceneEditor() {
                         key={choice.target_scene_id}
                         onClick={() => {
                           const targetId = choice.target_scene_id;
+                          setUnlockedIds(prev => Array.from(new Set([...prev, targetId])));
                           handleSelectScene(targetId);
                           const targetScene = scenes.find(s => s.scene_id === targetId);
                           if (!targetScene?.video_url) setIsPreviewOpen(false);
@@ -834,14 +811,6 @@ export default function SceneEditor() {
         isOpen={isProviderModalOpen}
         onClose={() => { setIsProviderModalOpen(false); setPendingGenerateSceneId(null); }}
         onConfirm={handleConfirmProvider}
-      />
-
-      {/* Image Preview Modal */}
-      <ImagePreviewModal
-        isOpen={!!previewImage}
-        onClose={() => setPreviewImage(null)}
-        imageUrl={previewImage?.url ?? ''}
-        alt={previewImage?.alt ?? ''}
       />
 
     </div>

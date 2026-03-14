@@ -5,38 +5,31 @@ interface CreateStoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreate: (prompt: string) => void;
+  isCreating?: boolean;
 }
 
-export default function CreateStoryModal({ isOpen, onClose, onCreate }: CreateStoryModalProps) {
+export default function CreateStoryModal({ isOpen, onClose, onCreate, isCreating = false }: CreateStoryModalProps) {
   const [prompt, setPrompt] = useState('');
-  const [isCreating, setIsCreating] = useState(false);
 
   if (!isOpen) return null;
 
   const handleCreate = () => {
     if (!prompt.trim()) return;
-    
-    setIsCreating(true);
-    // Simulate creation/generation
-    setTimeout(() => {
-      onCreate(prompt);
-      setIsCreating(false);
-      setPrompt('');
-      onClose();
-    }, 2000);
+    onCreate(prompt);
+    setPrompt('');
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-[fade-in]" 
+      <div
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-[fade-in]"
         onClick={onClose}
       />
-      
+
       {/* Modal Container */}
       <div className="glass relative w-full max-w-xl animate-[scale-in] overflow-hidden rounded-2xl border border-border-default bg-bg-card shadow-2xl">
-        
+
         {/* Header Ribbon */}
         <div className="absolute left-0 top-0 z-10">
           <div className="bg-linear-to-r from-(--color-accent-primary) to-(--color-accent-secondary) px-5 py-2.5 shadow-lg">
@@ -47,7 +40,7 @@ export default function CreateStoryModal({ isOpen, onClose, onCreate }: CreateSt
         </div>
 
         {/* Close Button */}
-        <button 
+        <button
           onClick={onClose}
           className="absolute right-4 top-4 z-20 text-text-muted hover:text-text-primary transition-colors hover:scale-110 active:scale-95"
         >
@@ -56,15 +49,15 @@ export default function CreateStoryModal({ isOpen, onClose, onCreate }: CreateSt
 
         {/* Modal Content */}
         <div className="px-8 pb-10 pt-20">
-          
+
           <div className="mb-6 space-y-6">
             {/* Prompt Textarea */}
             <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted ml-1">
-                Thumbnail Prompt
+                Story Prompt
               </label>
               <div className="flex flex-col overflow-hidden rounded-xl border border-border-default bg-bg-secondary transition-all duration-300 focus-within:border-(--color-accent-primary)/50 focus-within:shadow-[0_0_20px_rgba(200,164,90,0.05)]">
-                <textarea 
+                <textarea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   placeholder="Describe your new story idea in detail..."
@@ -72,7 +65,7 @@ export default function CreateStoryModal({ isOpen, onClose, onCreate }: CreateSt
                   style={{ fontFamily: "'Outfit', sans-serif" }}
                 />
                 <div className="flex justify-end border-t border-border-default bg-black/20 px-4 py-3">
-                  <button 
+                  <button
                     onClick={handleCreate}
                     disabled={isCreating || !prompt.trim()}
                     className="group relative flex items-center gap-2 overflow-hidden rounded-lg bg-linear-to-r from-(--color-accent-primary) to-(--color-accent-secondary) px-8 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-black shadow-lg shadow-(--color-accent-primary)/20 transition-all hover:scale-[1.02] hover:shadow-(--color-accent-primary)/40 active:scale-[0.98] disabled:opacity-30 disabled:hover:scale-100"
@@ -97,7 +90,7 @@ export default function CreateStoryModal({ isOpen, onClose, onCreate }: CreateSt
           </div>
 
           <p className="text-center text-[10px] text-text-muted italic">
-            Initial thumbnail will be generated based on your prompt.
+            Your story will be generated using AI. You may be asked clarifying questions.
           </p>
         </div>
 

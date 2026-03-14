@@ -67,6 +67,7 @@ class Theme(BaseModel):
 class StoryBoard(BaseModel):
     """The complete assembled storyboard: actors, themes, and scenes."""
     story_id: str
+    session_id: str
     title: str
     thumbnail_gcs_uri: Optional[str] = None
     thumbnail_url: Optional[str] = None

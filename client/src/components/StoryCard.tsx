@@ -1,40 +1,46 @@
 import { useState } from 'react';
 
 interface StoryCardProps {
-  id: string;
+  storyId: string;
+  sessionId: string;
   title: string;
-  thumbnail: string;
-  author: string;
-  plays: number;
-  genre: string;
-  isPublished: boolean;
-  onPlay?: (id: string) => void;
+  creatorId: string;
+  status: string;
+  createdAt: string;
+  thumbnailUrl?: string | null;
+  onPlay?: (storyId: string, sessionId: string) => void;
   animationDelay?: number;
   viewMode?: 'grid' | 'list';
 }
 
 export default function StoryCard({
-  id,
+  storyId,
+  sessionId,
   title,
-  thumbnail,
-  author,
-  plays,
-  genre,
-  isPublished,
+  creatorId,
+  status,
+  createdAt,
+  thumbnailUrl,
   onPlay,
   animationDelay = 0,
   viewMode = 'grid',
 }: StoryCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
-  const formatPlays = (n: number) => {
-    if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
-    if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
-    return n.toString();
-  };
-
+  const isPublished = status === 'ready';
   const isList = viewMode === 'list';
+
+  const formatDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    } catch {
+      return dateStr;
+    }
+  };
 
   return (
     <div
@@ -50,26 +56,27 @@ export default function StoryCard({
         {/* Thumbnail Section */}
         <div className={`relative overflow-hidden ${isList ? 'h-full w-40 shrink-0' : 'aspect-16/10 w-full'
           }`}>
-          {/* Skeleton loader */}
-          {!imageLoaded && (
-            <div className="absolute inset-0 animate-pulse bg-bg-secondary">
-              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/5 to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
-            </div>
-          )}
-
-          <img
-            src={thumbnail}
-            alt={title}
-            loading="lazy"
-            decoding="async"
-            className={`h-full w-full object-cover transition-all duration-700 group-hover:scale-110 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-            onLoad={() => setImageLoaded(true)}
-          />
+          {thumbnailUrl ? (
+            <img
+              src={thumbnailUrl}
+              alt={title}
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                (e.currentTarget.nextElementSibling as HTMLElement)?.classList.remove('hidden');
+              }}
+            />
+          ) : null}
+          <div className={`flex h-full w-full items-center justify-center bg-bg-secondary ${thumbnailUrl ? 'hidden' : ''}`}>
+            <span className="text-4xl font-bold text-text-muted/30" style={{ fontFamily: "'Sora', sans-serif" }}>
+              {title.charAt(0).toUpperCase()}
+            </span>
+          </div>
 
           {/* Gradient Overlay (only for grid) */}
           {!isList && <div className="absolute inset-0 bg-linear-to-t from-bg-card via-transparent to-transparent opacity-60" />}
 
-          {/* Published status (on top for list, overlay for grid) */}
+          {/* Published status */}
           <div className={`absolute left-2 top-2 z-10 ${isList ? 'sm:hidden' : ''}`}>
             <span className={`flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[8px] font-semibold backdrop-blur-md ${isPublished
                 ? 'bg-accent-emerald/20 text-accent-emerald'
@@ -85,8 +92,8 @@ export default function StoryCard({
             <div className={`absolute inset-0 flex items-center justify-center bg-black/30 transition-all duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'
               }`}>
               <button
-                id={`play-story-${id}`}
-                onClick={() => onPlay?.(id)}
+                id={`play-story-${storyId}`}
+                onClick={() => onPlay?.(storyId, sessionId)}
                 className={`flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-all duration-500 hover:scale-110 hover:bg-(--color-accent-primary) ${isHovered ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
                   }`}
               >
@@ -110,16 +117,16 @@ export default function StoryCard({
               <div className="flex items-center gap-2">
                 <div className="flex h-5 w-5 items-center justify-center rounded-full bg-linear-to-br from-(--color-accent-primary)/30 to-(--color-accent-cyan)/30">
                   <span className="text-[9px] font-bold text-(--color-accent-secondary)">
-                    {author.charAt(0).toUpperCase()}
+                    {creatorId.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <span className="text-xs text-text-muted">{author}</span>
+                <span className="text-xs text-text-muted">{creatorId}</span>
               </div>
 
               {isList && (
                 <div className="hidden items-center gap-2 sm:flex">
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                    {genre}
+                    {formatDate(createdAt)}
                   </span>
                 </div>
               )}
@@ -127,14 +134,6 @@ export default function StoryCard({
           </div>
 
           <div className="flex items-center gap-3 sm:gap-6">
-            {/* Plays count */}
-            <div className="flex items-center gap-1.5 text-text-muted">
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125(0 0)1-1.667-.985V5.653z" />
-              </svg>
-              <span className="text-xs font-medium">{formatPlays(plays)}</span>
-            </div>
-
             {/* Status (Desktop List View) */}
             {isList && (
               <div className="hidden min-w-16 sm:block">
@@ -150,7 +149,7 @@ export default function StoryCard({
             {/* Actions (List View Play only) */}
             <div className={`flex items-center gap-2 ${isList ? '' : 'hidden'}`}>
               <button
-                onClick={() => onPlay?.(id)}
+                onClick={() => onPlay?.(storyId, sessionId)}
                 className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-(--color-accent-primary) text-white transition-all duration-200 hover:scale-105 active:scale-95"
               >
                 <svg className="ml-0.5 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">

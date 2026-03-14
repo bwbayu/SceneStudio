@@ -202,14 +202,12 @@ class FirestoreService:
         doc = await self._db.collection("storyboards").document(story_id).get()
         return doc.to_dict() if doc.exists else None
 
-    async def list_storyboards(self, status: str = "ready") -> list[dict]:
+    async def list_storyboards(self) -> list[dict]:
         """
-        List storyboard summary records filtered by status (default 'ready').
+        List all storyboard summary records.
         Returns lightweight dicts (story_id, title, creator_id, status, created_at).
         """
-        query = self._db.collection("storyboards").where(
-            filter=FieldFilter("status", "==", status)
-        )
+        query = self._db.collection("storyboards")
         docs = []
         async for doc in query.stream():
             data = doc.to_dict()
@@ -221,6 +219,7 @@ class FirestoreService:
                     "creator_id": data.get("creator_id"),
                     "status": data.get("status"),
                     "created_at": data.get("created_at"),
+                    "thumbnail_url": data.get("thumbnail_url"),
                 }
             )
         return docs

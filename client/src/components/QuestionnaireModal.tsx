@@ -20,6 +20,8 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
         () => Object.fromEntries(questions.map((_, idx) => [idx, { selected: [], otherInput: '' }]))
     );
 
+    const allAnswered = questions.every((_, idx) => (answers[idx]?.selected ?? []).length > 0);
+
     if (!isOpen) return null;
 
     const handleOptionToggle = (questionIdx: number, option: string, isMulti: boolean) => {
@@ -206,13 +208,15 @@ export default function QuestionnaireModal({ isOpen, onClose, questions, onGener
                         ) : null}
                     </div>
 
-                    <button
-                        onClick={() => onGenerate(answers)}
-                        className="group relative flex items-center gap-3 overflow-hidden rounded-xl bg-linear-to-r from-(--color-accent-primary) to-(--color-accent-secondary) px-10 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-black shadow-xl shadow-(--color-accent-primary)/20 transition-all hover:scale-[1.05] active:scale-[0.95]"
-                    >
-                        Generate Story
-                        <MagicIcon className="h-4 w-4" />
-                    </button>
+                    {allAnswered && (
+                        <button
+                            onClick={() => onGenerate(answers)}
+                            className="group relative flex items-center gap-3 overflow-hidden rounded-xl bg-linear-to-r from-(--color-accent-primary) to-(--color-accent-secondary) px-10 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-black shadow-xl shadow-(--color-accent-primary)/20 transition-all hover:scale-[1.05] active:scale-[0.95]"
+                        >
+                            Generate Story
+                            <MagicIcon className="h-4 w-4" />
+                        </button>
+                    )}
                 </div>
 
                 {/* Decorative elements */}

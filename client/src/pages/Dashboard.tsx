@@ -1,41 +1,35 @@
 import { useState } from 'react';
 import StoryCard from '../components/StoryCard';
 import { BookIcon, GlobeIcon, PlusIcon, GridIcon, ListIcon } from '../components/Icons';
-
-// Stats definitions
-const STATS_CONFIG = [
-  {
-    label: 'Total Stories',
-    value: '12',
-    Icon: BookIcon,
-    color: 'from-[var(--color-accent-primary)] to-(--color-accent-secondary)',
-    bgGlow: 'var(--color-accent-primary)',
-  },
-  {
-    label: 'Published',
-    value: '8',
-    Icon: GlobeIcon,
-    color: 'from-[var(--color-accent-emerald)] to-emerald-400',
-    bgGlow: 'var(--color-accent-emerald)',
-  },
-];
+import type { StoryboardListItem } from '../api';
 
 interface DashboardProps {
-  stories: {
-    id: string;
-    title: string;
-    thumbnail: string;
-    author: string;
-    plays: number;
-    genre: string;
-    isPublished: boolean;
-  }[];
+  storyboards: StoryboardListItem[];
+  stats: { total: number; published: number };
+  isLoading: boolean;
   onCreateStory: () => void;
-  onSelectStory: (id: string) => void;
+  onSelectStory: (storyId: string, sessionId: string) => void;
 }
 
-export default function Dashboard({ stories, onCreateStory, onSelectStory }: DashboardProps) {
+export default function Dashboard({ storyboards, stats, isLoading, onCreateStory, onSelectStory }: DashboardProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  const statsConfig = [
+    {
+      label: 'Total Stories',
+      value: stats.total.toString(),
+      Icon: BookIcon,
+      color: 'from-[var(--color-accent-primary)] to-(--color-accent-secondary)',
+      bgGlow: 'var(--color-accent-primary)',
+    },
+    {
+      label: 'Published',
+      value: stats.published.toString(),
+      Icon: GlobeIcon,
+      color: 'from-[var(--color-accent-emerald)] to-emerald-400',
+      bgGlow: 'var(--color-accent-emerald)',
+    },
+  ];
 
   return (
     <main className="relative min-h-screen overflow-x-hidden px-6 pt-20 pb-12">
@@ -70,7 +64,7 @@ export default function Dashboard({ stories, onCreateStory, onSelectStory }: Das
             ============================ */}
         <section className="mb-10">
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-            {STATS_CONFIG.map((stat, index) => (
+            {statsConfig.map((stat, index) => (
               <div
                 key={stat.label}
                 className="glass group relative animate-[card-enter] overflow-hidden rounded-(--radius-card) p-4 opacity-0 transition-all duration-300 hover:scale-[1.02] sm:p-5"
@@ -87,7 +81,7 @@ export default function Dashboard({ stories, onCreateStory, onSelectStory }: Das
                     <stat.Icon />
                   </div>
                   <p className="text-2xl font-bold text-text-primary sm:text-3xl" style={{ fontFamily: "'Sora', sans-serif" }}>
-                    {stat.value}
+                    {isLoading ? '—' : stat.value}
                   </p>
                   <p className="mt-0.5 text-xs font-medium text-text-muted sm:text-sm">
                     {stat.label}
@@ -109,7 +103,7 @@ export default function Dashboard({ stories, onCreateStory, onSelectStory }: Das
                 My Stories
               </h2>
               <p className="mt-1 text-sm text-text-muted">
-                {stories.length} stories created
+                {isLoading ? 'Loading...' : `${storyboards.length} stories created`}
               </p>
             </div>
 
@@ -143,10 +137,16 @@ export default function Dashboard({ stories, onCreateStory, onSelectStory }: Das
             ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
             : 'grid-cols-1'
             }`}>
-            {stories.map((story, index) => (
+            {storyboards.map((story, index) => (
               <StoryCard
-                key={story.id}
-                {...story}
+                key={story.story_id}
+                storyId={story.story_id}
+                sessionId={story.session_id}
+                title={story.title}
+                creatorId={story.creator_id}
+                status={story.status}
+                createdAt={story.created_at}
+                thumbnailUrl={story.thumbnail_url}
                 viewMode={viewMode}
                 onPlay={onSelectStory}
                 animationDelay={index * 50 + 400}
@@ -159,7 +159,7 @@ export default function Dashboard({ stories, onCreateStory, onSelectStory }: Das
               onClick={onCreateStory}
               className={`group relative flex animate-[card-enter] cursor-pointer items-center justify-center rounded-(--radius-card) border-2 border-dashed border-border-default bg-transparent p-6 opacity-0 transition-all duration-500 hover:border-(--color-accent-primary)/50 hover:bg-bg-card/50 ${viewMode === 'grid' ? 'flex-col min-h-70' : 'w-full h-24 flex-row gap-4'
                 }`}
-              style={{ animationDelay: `${stories.length * 50 + 400}ms`, animationFillMode: 'forwards' }}
+              style={{ animationDelay: `${storyboards.length * 50 + 400}ms`, animationFillMode: 'forwards' }}
             >
               {/* Pulsing glow background */}
               <div className="absolute inset-0 rounded-(--radius-card) opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: 'radial-gradient(circle at center, rgba(200, 164, 90, 0.06) 0%, transparent 70%)' }} />
