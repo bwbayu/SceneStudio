@@ -197,6 +197,32 @@ class FirestoreService:
                 break
         await doc_ref.update({"scenes": data["scenes"]})
 
+    async def add_scene_to_storyboard(self, story_id: str, scene) -> None:
+        """Append a new Scene to the storyboard's scenes array in Firestore."""
+        doc_ref = self._db.collection("storyboards").document(story_id)
+        doc = await doc_ref.get()
+        if not doc.exists:
+            return
+        data = doc.to_dict()
+        scenes = data.get("scenes", [])
+        scenes.append(scene.model_dump())
+        await doc_ref.update({"scenes": scenes, "updated_at": datetime.now(timezone.utc)})
+
+    async def update_scene_choices(self, story_id: str, scene_id: str, new_choice) -> None:
+        """Add a new Choice to an existing scene's choices list in Firestore."""
+        doc_ref = self._db.collection("storyboards").document(story_id)
+        doc = await doc_ref.get()
+        if not doc.exists:
+            return
+        data = doc.to_dict()
+        for scene in data.get("scenes", []):
+            if scene.get("scene_id") == scene_id:
+                choices = scene.get("choices", [])
+                choices.append(new_choice.model_dump())
+                scene["choices"] = choices
+                break
+        await doc_ref.update({"scenes": data["scenes"], "updated_at": datetime.now(timezone.utc)})
+
     async def get_storyboard(self, story_id: str) -> Optional[dict]:
         """Fetch a storyboard document by ID. Returns None if not found."""
         doc = await self._db.collection("storyboards").document(story_id).get()

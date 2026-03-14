@@ -137,6 +137,23 @@ export interface StoryboardListResponse {
   storyboards: StoryboardListItem[];
 }
 
+// --- Add Scene models ---
+
+export interface AddSceneRequest {
+  scene_description: string;
+  actor_ids: string[];
+  theme_id: string | null;
+  prev_scene_ids: string[];
+  next_scene_ids: string[];
+}
+
+export interface AddSceneResponse {
+  status: string; // "questions" | "processing" | "complete" | "error"
+  questions: ClarificationQuestion[] | null;
+  scene_id: string | null;
+  error: string | null;
+}
+
 // --- Pipeline status union ---
 
 export type PipelineStatus =

@@ -1,5 +1,7 @@
 import { apiClient } from "./axios";
 import type {
+  AddSceneRequest,
+  AddSceneResponse,
   AnswerRequest,
   GenerateSceneVideoRequest,
   GenerateSceneVideoResponse,
@@ -15,13 +17,11 @@ import type {
 
 export async function fetchStoryboards(): Promise<StoryboardListResponse> {
   const { data } = await apiClient.get<StoryboardListResponse>("/storyboards");
-  console.log("FETCH ALL STORYBOARD", data)
   return data;
 }
 
 export async function fetchStoryboard(storyId: string): Promise<StoryBoard> {
   const { data } = await apiClient.get<StoryBoard>(`/storyboards/${storyId}`);
-  console.log("FETCH STORYBOARD PER STORY ID", data)
   return data;
 }
 
@@ -75,6 +75,39 @@ export async function fetchSceneGenerationStatus(
   const { data } = await apiClient.post<GenerateSceneVideoResponse>(
     "/scene/generate-video/status",
     body
+  );
+  return data;
+}
+
+// --- Add Scene endpoints ---
+
+export async function startAddScene(
+  sessionId: string,
+  body: AddSceneRequest
+): Promise<AddSceneResponse> {
+  const { data } = await apiClient.post<AddSceneResponse>(
+    `/pipeline/${sessionId}/scene/add`,
+    body
+  );
+  return data;
+}
+
+export async function answerAddSceneQuestions(
+  sessionId: string,
+  body: { answers: { question: string; selected_options: string[] }[] }
+): Promise<AddSceneResponse> {
+  const { data } = await apiClient.post<AddSceneResponse>(
+    `/pipeline/${sessionId}/scene/answer`,
+    body
+  );
+  return data;
+}
+
+export async function fetchAddSceneStatus(
+  sessionId: string
+): Promise<AddSceneResponse> {
+  const { data } = await apiClient.get<AddSceneResponse>(
+    `/pipeline/${sessionId}/scene/status`
   );
   return data;
 }

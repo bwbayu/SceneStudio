@@ -1,18 +1,20 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  MagicIcon,
   ChevronDownIcon,
   XIcon,
-  ListIcon
+  ListIcon,
+  PlusIcon,
 } from '../components/Icons';
-import AssetGenerationModal from '../components/AssetGenerationModal';
 import ProviderSelectionModal from '../components/ProviderSelectionModal';
 import ImagePreviewModal from '../components/ImagePreviewModal';
+import AddSceneModal from '../components/AddSceneModal';
+import QuestionnaireModal from '../components/QuestionnaireModal';
 import { useStoryboard } from '../hooks/useStoryboards';
 import { useGenerateSceneVideo, useSceneGenerationStatus } from '../hooks/useSceneGeneration';
+import { useStartAddScene, useAnswerAddSceneQuestions, useAddSceneStatus } from '../hooks/useAddScene';
 import { fetchSceneGenerationStatus } from '../api/services';
-import type { Scene as ApiScene } from '../api';
+import type { Scene as ApiScene, ClarificationQuestion, AddSceneRequest } from '../api';
 
 // Helper: build a tree structure from flat scene list using choices
 function buildSceneTree(scenes: ApiScene[]) {
@@ -246,16 +248,29 @@ export default function SceneEditor() {
   const [scrollLeft, setScrollLeft] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
 
-  // Generation Modal States
-  const [isGenModalOpen, setIsGenModalOpen] = useState(false);
-  const [genType, setGenType] = useState<'actor' | 'theme' | 'script' | 'scene'>('actor');
-
   // Image Preview Modal State
   const [previewImage, setPreviewImage] = useState<{ url: string; alt: string } | null>(null);
 
   // Provider Selection Modal States
   const [isProviderModalOpen, setIsProviderModalOpen] = useState(false);
   const [pendingGenerateSceneId, setPendingGenerateSceneId] = useState<string | null>(null);
+
+  // Add Scene States
+  const [isAddSceneModalOpen, setIsAddSceneModalOpen] = useState(false);
+  const [addSceneQuestions, setAddSceneQuestions] = useState<ClarificationQuestion[] | null>(null);
+  const [isAddScenePolling, setIsAddScenePolling] = useState(false);
+  const startAddScene = useStartAddScene();
+  const answerAddScene = useAnswerAddSceneQuestions();
+  useAddSceneStatus(
+    isAddScenePolling ? sessionId : null,
+    isAddScenePolling,
+    storyId,
+    (data) => {
+      if (data.status === 'complete' || data.status === 'error') {
+        setIsAddScenePolling(false);
+      }
+    }
+  );
   const [generatingSceneIds, setGeneratingSceneIds] = useState<Set<string>>(new Set());
 
   // Restore polling on page load: check scenes without video_url
@@ -359,15 +374,6 @@ export default function SceneEditor() {
 
   const activeScene = scenes.find(s => s.scene_id === activeSceneId) || scenes[0];
 
-  const handleOpenGen = (type: 'actor' | 'theme' | 'script' | 'scene') => {
-    setGenType(type);
-    setIsGenModalOpen(true);
-  };
-
-  const handleSaveAsset = (type: string, data: { prompt: string; previewImage: string }) => {
-    console.log(`Saved ${type} asset:`, data);
-  };
-
   const handleOpenProviderModal = (sceneId: string) => {
     setPendingGenerateSceneId(sceneId);
     setIsProviderModalOpen(true);
@@ -427,6 +433,48 @@ export default function SceneEditor() {
     return scene.segments
       .map(seg => seg.action_description)
       .join(' ');
+  };
+
+  // Add Scene handlers
+  const handleAddSceneSubmit = (data: AddSceneRequest) => {
+    if (!sessionId) return;
+    setIsAddSceneModalOpen(false);
+    startAddScene.mutate(
+      { sessionId, body: data },
+      {
+        onSuccess: (res) => {
+          if (res.status === 'questions' && res.questions) {
+            setAddSceneQuestions(res.questions);
+          } else if (res.status === 'processing') {
+            setIsAddScenePolling(true);
+          }
+        },
+      }
+    );
+  };
+
+  const handleAddSceneAnswer = (rawAnswers: Record<number, { selected: string[]; otherInput: string }>) => {
+    if (!sessionId || !addSceneQuestions) return;
+    const answers = addSceneQuestions.map((q, idx) => {
+      const ans = rawAnswers[idx] ?? { selected: [], otherInput: '' };
+      const selected = ans.otherInput.trim()
+        ? [...ans.selected.filter(s => s !== 'Other'), ans.otherInput.trim()]
+        : ans.selected;
+      return { question: q.question, selected_options: selected };
+    });
+    setAddSceneQuestions(null);
+    answerAddScene.mutate(
+      { sessionId, answers },
+      {
+        onSuccess: (res) => {
+          if (res.status === 'questions' && res.questions) {
+            setAddSceneQuestions(res.questions);
+          } else if (res.status === 'processing') {
+            setIsAddScenePolling(true);
+          }
+        },
+      }
+    );
   };
 
   return (
@@ -581,12 +629,22 @@ export default function SceneEditor() {
                 <div className="h-full flex flex-col p-4 pt-0">
                   <div className="mb-4 flex items-center justify-end px-1 gap-2 pt-4">
                     <button
-                      onClick={() => handleOpenGen('script')}
+                      onClick={() => setIsAddSceneModalOpen(true)}
+                      title="Add Scene"
                       className="text-text-muted hover:text-(--color-accent-primary) transition-colors"
                     >
-                      <MagicIcon className="h-4 w-4" />
+                      <PlusIcon className="h-4 w-4" />
                     </button>
                   </div>
+
+                  {isAddScenePolling && (
+                    <div className="mb-3 flex items-center gap-3 rounded-lg border border-(--color-accent-primary)/30 bg-(--color-accent-primary)/5 px-3 py-2.5">
+                      <div className="h-3.5 w-3.5 shrink-0 animate-spin rounded-full border-2 border-(--color-accent-primary) border-t-transparent" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-(--color-accent-primary)">
+                        Generating scene script…
+                      </span>
+                    </div>
+                  )}
 
                   <div className="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-[var(--color-border-hover)] scrollbar-track-transparent">
                     {scenes.map(scene => (
@@ -819,16 +877,6 @@ export default function SceneEditor() {
         </div>
       )}
 
-      {/* Generation Modal */}
-      <AssetGenerationModal
-        key={isGenModalOpen ? genType : 'closed'}
-        isOpen={isGenModalOpen}
-        onClose={() => setIsGenModalOpen(false)}
-        type={genType}
-        onSave={handleSaveAsset}
-        initialImage={undefined}
-      />
-
       {/* Provider Selection Modal */}
       <ProviderSelectionModal
         isOpen={isProviderModalOpen}
@@ -843,6 +891,27 @@ export default function SceneEditor() {
         imageUrl={previewImage?.url ?? ''}
         alt={previewImage?.alt ?? ''}
       />
+
+      {/* Add Scene Modal */}
+      <AddSceneModal
+        isOpen={isAddSceneModalOpen}
+        onClose={() => setIsAddSceneModalOpen(false)}
+        scenes={scenes}
+        actors={actors}
+        themes={themes}
+        onSubmit={handleAddSceneSubmit}
+      />
+
+      {/* Add Scene — Questionnaire (if agent needs clarification) */}
+      {addSceneQuestions && (
+        <QuestionnaireModal
+          isOpen={!!addSceneQuestions}
+          onClose={() => setAddSceneQuestions(null)}
+          questions={addSceneQuestions}
+          onGenerate={handleAddSceneAnswer}
+        />
+      )}
+
 
     </div>
   );
