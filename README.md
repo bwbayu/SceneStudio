@@ -329,6 +329,14 @@ See [docs/architecture.md](docs/architecture.md) for a detailed breakdown includ
 - Firestore document structure
 - Frontend-backend API contract
 
+### Main Generation Pipeline
+
+![Pipeline Flowchart](assets/flowchart-pipeline.png)
+
+### Add Scene Sub-Pipeline
+
+![Add Scene Flowchart](assets/flowchart-add-scene.png)
+
 ---
 
 ## Inspiration
