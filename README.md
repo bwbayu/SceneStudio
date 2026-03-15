@@ -5,6 +5,7 @@
 > AI-powered cinematic visual novel studio — build interactive stories with AI-generated scripts, character art, and cinematic video scenes.
 
 Demo : https://www.youtube.com/watch?v=WtlUJYufBNU
+
 Web URI (Read-only, we hide all the feature related to generation features because haven't setup for input api key) : https://asas-demo.web.app
 
 **Gemini Hackathon — Creative Storyteller**
