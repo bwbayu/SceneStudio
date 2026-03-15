@@ -129,10 +129,11 @@ function App() {
   };
 
   const isDashboard = location.pathname === '/';
+  const isDev = import.meta.env.DEV;
 
   return (
     <div className="bg-mesh noise-overlay relative min-h-screen overflow-x-hidden pt-16">
-      <Navbar onCreateStory={handleOpenCreateModal} showCreateStory={isDashboard} />
+      <Navbar onCreateStory={handleOpenCreateModal} showCreateStory={isDashboard && isDev} />
 
       <Routes>
         <Route

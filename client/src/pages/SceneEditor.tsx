@@ -163,8 +163,8 @@ function SceneNode({ scene, isActive, isGenerating, hasVideo, onClick, onSelect,
             </div>
           )}
 
-          {/* Generate button — show when no video and not generating */}
-          {!isGenerating && !hasVideo && (
+          {/* Generate button — show when no video and not generating (dev only) */}
+          {import.meta.env.DEV && !isGenerating && !hasVideo && (
             <button
               onClick={(e) => { e.stopPropagation(); onGenerate(); }}
               className="absolute right-2 top-2 z-10 rounded-lg bg-black/70 px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-white opacity-0 transition-all group-hover/thumb:opacity-100 hover:bg-(--color-accent-primary) hover:text-black backdrop-blur-sm"
@@ -628,13 +628,15 @@ export default function SceneEditor() {
               <div className="overflow-hidden">
                 <div className="h-full flex flex-col p-4 pt-0">
                   <div className="mb-4 flex items-center justify-end px-1 gap-2 pt-4">
-                    <button
-                      onClick={() => setIsAddSceneModalOpen(true)}
-                      title="Add Scene"
-                      className="text-text-muted hover:text-(--color-accent-primary) transition-colors"
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                    </button>
+                    {import.meta.env.DEV && (
+                      <button
+                        onClick={() => setIsAddSceneModalOpen(true)}
+                        title="Add Scene"
+                        className="text-text-muted hover:text-(--color-accent-primary) transition-colors"
+                      >
+                        <PlusIcon className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
 
                   {isAddScenePolling && (

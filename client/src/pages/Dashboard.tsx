@@ -13,6 +13,7 @@ interface DashboardProps {
 
 export default function Dashboard({ storyboards, stats, isLoading, onCreateStory, onSelectStory }: DashboardProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const isDev = import.meta.env.DEV;
 
   const statsConfig = [
     {
@@ -49,13 +50,15 @@ export default function Dashboard({ storyboards, stats, isLoading, onCreateStory
             </div>
 
             {/* Create Story - Mobile */}
-            <button
-              onClick={onCreateStory}
-              className="group inline-flex cursor-pointer items-center gap-2 self-start rounded-(--radius-button) bg-linear-to-r from-(--color-accent-primary) to-(--color-accent-secondary) px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-(--color-accent-primary)/25 transition-all duration-300 hover:shadow-xl hover:shadow-(--color-accent-primary)/40 sm:hidden"
-            >
-              <PlusIcon className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
-              Create Story
-            </button>
+            {isDev && (
+              <button
+                onClick={onCreateStory}
+                className="group inline-flex cursor-pointer items-center gap-2 self-start rounded-(--radius-button) bg-linear-to-r from-(--color-accent-primary) to-(--color-accent-secondary) px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-(--color-accent-primary)/25 transition-all duration-300 hover:shadow-xl hover:shadow-(--color-accent-primary)/40 sm:hidden"
+              >
+                <PlusIcon className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
+                Create Story
+              </button>
+            )}
           </div>
         </section>
 
@@ -154,7 +157,7 @@ export default function Dashboard({ storyboards, stats, isLoading, onCreateStory
             ))}
 
             {/* Create New Story Card */}
-            <button
+            {isDev && <button
               id="create-story-card"
               onClick={onCreateStory}
               className={`group relative flex animate-[card-enter] cursor-pointer items-center justify-center rounded-(--radius-card) border-2 border-dashed border-border-default bg-transparent p-6 opacity-0 transition-all duration-500 hover:border-(--color-accent-primary)/50 hover:bg-bg-card/50 ${viewMode === 'grid' ? 'flex-col min-h-70' : 'w-full h-24 flex-row gap-4'
@@ -179,7 +182,7 @@ export default function Dashboard({ storyboards, stats, isLoading, onCreateStory
                   </p>
                 </div>
               </div>
-            </button>
+            </button>}
           </div>
         </section>
       </div>
