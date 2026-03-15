@@ -31,7 +31,7 @@ _scene_tasks: dict[str, asyncio.Task] = {}
 class GenerateSceneRequest(BaseModel):
     session_id: str
     scene_id: str
-    provider: str = "apixo"  # "gemini" | "apixo"
+    provider: str = "gemini"  # "gemini" | "apixo"
 
 
 class SceneStatusRequest(BaseModel):

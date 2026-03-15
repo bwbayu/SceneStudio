@@ -232,7 +232,7 @@ class storyBoardService:
 
         engineer_raw, (thumb_uri, thumb_url) = await asyncio.gather(
             self._call_agent(segment_engineer_agent, engineer_payload),
-            self._generate_thumbnail_apixo(session.session_id, casting_output.actors, designer_output.themes, analysis),
+            self._generate_thumbnail(session.session_id, casting_output.actors, designer_output.themes, analysis),
         )
         engineer_output = SegmentEngineerOutput.model_validate_json(_clean_json(engineer_raw))
 

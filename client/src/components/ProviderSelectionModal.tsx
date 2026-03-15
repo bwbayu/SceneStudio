@@ -38,7 +38,7 @@ const providers = [
 ];
 
 export default function ProviderSelectionModal({ isOpen, onClose, onConfirm }: ProviderSelectionModalProps) {
-  const [selected, setSelected] = useState<'apixo' | 'gemini'>('apixo');
+  const [selected, setSelected] = useState<'apixo' | 'gemini'>('gemini');
 
   if (!isOpen) return null;
 
