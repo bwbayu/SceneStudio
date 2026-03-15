@@ -1,5 +1,5 @@
 """
-Cine-Agent API — FastAPI server for the multi-agent storyboard generation pipeline.
+SceneStudio API — FastAPI server for the multi-agent storyboard generation pipeline.
 
 Endpoints:
   POST /api/session/start          — submit a raw script, begin clarification
@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Cine-Agent API",
+    title="SceneStudio API",
     description="AI-powered interactive storyboard generation using multi-agent orchestration",
     version="0.1.0",
     lifespan=lifespan,

@@ -32,13 +32,13 @@ from dotenv import load_dotenv
 
 import uuid, json, asyncio, os
 
-APP_NAME = "cine-agent"
+APP_NAME = "scene-studio"
 load_dotenv()
 _genai_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 class storyBoardService:
     """
-    Pipeline orchestrator for Cine-Agent.
+    Pipeline orchestrator for SceneStudio.
 
     Manages:
     1. Multi-round Director clarification loop (API-level, stateless per call)

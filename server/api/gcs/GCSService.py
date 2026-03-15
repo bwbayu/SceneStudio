@@ -1,5 +1,5 @@
 """
-GCS storage service for Cine-Agent.
+GCS storage service for SceneStudio.
 
 Handles actor/theme reference image uploads and public URL generation.
 Videos are written directly to GCS by Veo — this service provides path
@@ -23,7 +23,7 @@ _CREDENTIALS_PATH = os.path.join(
 
 class GCSStorageService:
     """
-    Thin GCS wrapper for Cine-Agent asset management.
+    Thin GCS wrapper for SceneStudio asset management.
 
     - Uploads actor/theme reference images (output of Gemini Flash Image generation)
     - Generates signed HTTPS URLs for frontend display

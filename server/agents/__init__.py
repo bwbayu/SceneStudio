@@ -3,6 +3,8 @@ from .screenwriter import screenwriter_agent
 from .casting import casting_agent
 from .production_designer import production_designer_agent
 from .segment_engineer import segment_engineer_agent
+from .scene_director import scene_director_agent
+from .scene_writer import scene_writer_agent
 
 __all__ = [
     "director_agent",
@@ -10,4 +12,6 @@ __all__ = [
     "casting_agent",
     "production_designer_agent",
     "segment_engineer_agent",
+    "scene_director_agent",
+    "scene_writer_agent",
 ]

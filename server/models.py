@@ -67,6 +67,7 @@ class Theme(BaseModel):
 class StoryBoard(BaseModel):
     """The complete assembled storyboard: actors, themes, and scenes."""
     story_id: str
+    session_id: str
     title: str
     thumbnail_gcs_uri: Optional[str] = None
     thumbnail_url: Optional[str] = None
@@ -135,6 +136,19 @@ class SegmentEngineerOutput(BaseModel):
     scenes: list[Scene] = Field(description="Complete scenes with 3 video segments each")
 
 
+class SceneWriterOutput(BaseModel):
+    """Scene Writer output: title, summary, and choice labels for a single new scene."""
+    title: str = Field(description="Short, evocative scene title (3-6 words)")
+    summary: str = Field(description="2-3 sentence narrative summary of what happens in this scene")
+    choice_label_from_prev: str = Field(
+        description="Choice text shown in previous scenes for the player to enter this new scene (e.g. 'Enter the warehouse', 'Follow the stranger')"
+    )
+    choice_labels_to_next: list[str] = Field(
+        default_factory=list,
+        description="One short choice label per entry in next_scene_titles, in the same order. Empty list if this is an ending scene."
+    )
+
+
 # --- API session models ---
 
 class QAPair(BaseModel):
@@ -152,6 +166,37 @@ class SessionState(BaseModel):
     status: str = "pending"  # "pending", "clarifying", "processing_agents", "processing_assets", "complete", "error"
     story_id: Optional[str] = None
     storyboard: Optional[StoryBoard] = None
+    error: Optional[str] = None
+    add_scene_state: Optional["AddSceneState"] = None
+
+
+class AddSceneRequest(BaseModel):
+    """Request body for POST /session/{id}/scene/add."""
+    scene_description: str
+    actor_ids: list[str] = Field(default_factory=list, description="Up to 2 existing actor IDs")
+    theme_id: Optional[str] = Field(default=None, description="Up to 1 existing theme ID")
+    prev_scene_ids: list[str] = Field(description="Scene IDs that lead to this new scene (at least 1)")
+    next_scene_ids: list[str] = Field(default_factory=list, description="Scene IDs this new scene leads to (empty if ending)")
+
+
+class AddSceneState(BaseModel):
+    """In-session state tracking one ongoing add-scene operation."""
+    status: str = "clarifying"  # "clarifying" | "processing" | "complete" | "error"
+    scene_description: str
+    actor_ids: list[str] = Field(default_factory=list)
+    theme_id: Optional[str] = None
+    prev_scene_ids: list[str]
+    next_scene_ids: list[str] = Field(default_factory=list)
+    qa_history: list[QAPair] = Field(default_factory=list)
+    new_scene_id: Optional[str] = None
+    error: Optional[str] = None
+
+
+class AddSceneResponse(BaseModel):
+    """API response for add-scene endpoints."""
+    status: str  # "questions" | "processing" | "complete" | "error"
+    questions: Optional[list[ClarificationQuestion]] = None
+    scene_id: Optional[str] = None
     error: Optional[str] = None
 
 

@@ -13,6 +13,9 @@ import asyncio
 from fastapi import APIRouter, HTTPException
 
 from models import (
+    AddSceneRequest,
+    AddSceneResponse,
+    AddSceneState,
     AnswerRequest,
     QAPair,
     SessionResponse,
@@ -24,6 +27,7 @@ from models import (
 
 from api.firestore.firestoreService import firestore_service
 from api.pipeline.pipelineService import PipelineService
+from api.story_board.addSceneService import add_scene_service
 
 router = APIRouter(
     prefix="/pipeline",
@@ -144,4 +148,121 @@ async def get_pipeline_status(session_id: str) -> PipelineStatusResponse:
         story_id=session.story_id,
         status=session.status,
         error=session.error,
+    )
+
+
+# ------------------------------------------------------------------
+# Add Scene endpoints
+# ------------------------------------------------------------------
+
+async def _get_session_and_storyboard(session_id: str):
+    """Look up an active session and its storyboard. Falls back to Firestore if not in memory."""
+    session = _sessions.get(session_id)
+    if session is None:
+        session_data = await firestore_service.get_session(session_id)
+        if session_data is None:
+            raise HTTPException(status_code=404, detail=f"Session '{session_id}' not found")
+        storyboard = None
+        if session_data.get("story_id"):
+            sb_data = await firestore_service.get_storyboard(session_data["story_id"])
+            if sb_data:
+                storyboard = StoryBoard(**sb_data)
+        session = SessionState(
+            session_id=session_data["session_id"],
+            creator_id=session_data.get("creator_id", "anonymous"),
+            script=session_data["script"],
+            qa_history=[QAPair(**qa) for qa in session_data.get("qa_history", [])],
+            status=session_data["status"],
+            story_id=session_data.get("story_id"),
+            storyboard=storyboard,
+            error=session_data.get("error"),
+        )
+        _sessions[session_id] = session
+    if session.storyboard is None:
+        raise HTTPException(
+            status_code=400,
+            detail="No storyboard found for this session. Complete the pipeline first.",
+        )
+    return session, session.storyboard
+
+
+@router.post("/{session_id}/scene/add", response_model=AddSceneResponse)
+async def add_scene_start(session_id: str, request: AddSceneRequest) -> AddSceneResponse:
+    """
+    Start the add-scene pipeline for an existing storyboard session.
+
+    Runs the Scene Director agent — if it needs clarification, returns questions.
+    Otherwise kicks off background scene generation and returns status='processing'.
+    """
+    session, storyboard = await _get_session_and_storyboard(session_id)
+
+    if not request.scene_description.strip():
+        raise HTTPException(status_code=400, detail="Scene description cannot be empty")
+    if not request.prev_scene_ids:
+        raise HTTPException(status_code=400, detail="At least one previous scene is required")
+    if len(request.actor_ids) > 2:
+        raise HTTPException(status_code=400, detail="Maximum 2 actors allowed")
+
+    # Initialise add_scene_state
+    session.add_scene_state = AddSceneState(
+        status="clarifying",
+        scene_description=request.scene_description.strip(),
+        actor_ids=request.actor_ids,
+        theme_id=request.theme_id,
+        prev_scene_ids=request.prev_scene_ids,
+        next_scene_ids=request.next_scene_ids,
+    )
+
+    return await add_scene_service.run_add_scene_pipeline(session, storyboard, session.add_scene_state)
+
+
+@router.post("/{session_id}/scene/answer", response_model=AddSceneResponse)
+async def add_scene_answer(session_id: str, request: AnswerRequest) -> AddSceneResponse:
+    """Submit answers to the Scene Director's clarifying questions."""
+    session, storyboard = await _get_session_and_storyboard(session_id)
+
+    if session.add_scene_state is None:
+        raise HTTPException(status_code=400, detail="No active add-scene operation for this session")
+    if session.add_scene_state.status != "clarifying":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Add-scene state is '{session.add_scene_state.status}' — answers not expected now.",
+        )
+    if not request.answers:
+        raise HTTPException(status_code=400, detail="Answers cannot be empty")
+
+    for qa in request.answers:
+        session.add_scene_state.qa_history.append(
+            QAPair(question=qa.question, selected_options=qa.selected_options)
+        )
+
+    return await add_scene_service.run_add_scene_pipeline(session, storyboard, session.add_scene_state)
+
+
+@router.get("/{session_id}/scene/status", response_model=AddSceneResponse)
+async def add_scene_status(session_id: str) -> AddSceneResponse:
+    """Poll the status of the current add-scene operation."""
+    session = _sessions.get(session_id)
+    if session is None:
+        session_data = await firestore_service.get_session(session_id)
+        if session_data is None:
+            raise HTTPException(status_code=404, detail=f"Session '{session_id}' not found")
+        session = SessionState(
+            session_id=session_data["session_id"],
+            creator_id=session_data.get("creator_id", "anonymous"),
+            script=session_data["script"],
+            qa_history=[QAPair(**qa) for qa in session_data.get("qa_history", [])],
+            status=session_data["status"],
+            story_id=session_data.get("story_id"),
+            error=session_data.get("error"),
+        )
+        _sessions[session_id] = session
+    if session.add_scene_state is None:
+        raise HTTPException(status_code=400, detail="No active add-scene operation for this session")
+
+    state = session.add_scene_state
+    return AddSceneResponse(
+        status=state.status,
+        scene_id=state.new_scene_id,
+        error=state.error,
     )

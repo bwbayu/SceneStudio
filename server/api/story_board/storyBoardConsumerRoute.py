@@ -11,8 +11,8 @@ router = APIRouter(
 
 @router.get("")
 async def list_storyboards():
-    """List all ready storyboards for consumers to browse."""
-    storyboards = await firestore_service.list_storyboards(status="ready")
+    """List all storyboards for consumers to browse."""
+    storyboards = await firestore_service.list_storyboards()
     return {"storyboards": storyboards}
 
 
