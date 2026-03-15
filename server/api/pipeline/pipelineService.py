@@ -11,7 +11,7 @@ import asyncio
 
 from models import SessionState, SessionResponse
 from api.story_board.storyBoardService import storyBoardService
-from api.actor.actorService import generate_and_save_actor_images
+from api.actor.actorService import generate_and_save_actor_images_apixo
 from api.theme.themeService import generate_and_save_theme_images_apixo
 from api.firestore.firestoreService import firestore_service
 from api.utils import _to_response
@@ -104,7 +104,7 @@ class PipelineService:
                 )
 
                 await asyncio.gather(
-                    generate_and_save_actor_images(
+                    generate_and_save_actor_images_apixo(
                         session_id=session.session_id,
                         story_id=storyboard.story_id,
                         actors=storyboard.actors,

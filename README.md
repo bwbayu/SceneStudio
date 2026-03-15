@@ -1,6 +1,10 @@
 # SceneStudio
 
+![Architecture Diagram](assets/thumbnail.jpg)
+
 > AI-powered cinematic visual novel studio — build interactive stories with AI-generated scripts, character art, and cinematic video scenes.
+
+Demo : https://www.youtube.com/watch?v=WtlUJYufBNU
 
 **Gemini Hackathon — Creative Storyteller**
 

@@ -241,6 +241,7 @@ class storyBoardService:
 
         storyboard = StoryBoard(
             story_id=story_id,
+            session_id=session.session_id,
             title=analysis.title,
             thumbnail_gcs_uri=thumb_uri,
             thumbnail_url=thumb_url,

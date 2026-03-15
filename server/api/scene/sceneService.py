@@ -318,6 +318,7 @@ async def generate_scene_videos(
             config = types.GenerateVideosConfig(
                 aspect_ratio="16:9",
                 resolution="720p",
+                duration_seconds=8,
                 number_of_videos=1,
                 reference_images=reference_images if reference_images else None,
             )
@@ -338,6 +339,7 @@ async def generate_scene_videos(
                 aspect_ratio="16:9",
                 resolution="720p",
                 number_of_videos=1,
+                duration_seconds=8,
                 reference_images=reference_images if reference_images else None,
             )
             operation = client.models.generate_videos(
