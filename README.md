@@ -65,9 +65,9 @@ The platform uses **Gemini's multimodal capabilities** through a multi-agent pip
 ### AI Models (Google Gemini)
 | Model | Role |
 |-------|------|
-| `gemini-2.5-flash-preview` | Text reasoning — all 7 ADK agents |
-| `gemini-2.0-flash-preview-image-generation` | Actor portraits + location images + thumbnails |
-| `veo-3.0-generate-preview` / `veo-3.1-fast-generate-preview` | Cinematic video generation |
+| `gemini-3-flash-preview` | Text reasoning — all 7 ADK agents |
+| `gemini-3.1-flash-image-preview` | Actor portraits + location images + thumbnails |
+| `veo-3.1-fast-generate-preview` | Cinematic video generation |
 
 ### Google Cloud Infrastructure
 | Service | Purpose |

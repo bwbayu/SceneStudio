@@ -12,7 +12,7 @@ const providers = [
     id: 'apixo' as const,
     name: 'Apixo',
     description: 'Fast, high-quality video generation with cinematic style output.',
-    badge: 'Recommended',
+    badge: null,
     icon: (
       <svg className="h-8 w-8" viewBox="0 0 32 32" fill="none">
         <rect width="32" height="32" rx="8" fill="currentColor" className="text-(--color-accent-primary) opacity-20" />
