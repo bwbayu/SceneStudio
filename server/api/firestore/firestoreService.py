@@ -14,8 +14,9 @@ from google.cloud.firestore_v1 import AsyncClient, FieldFilter
 from google.oauth2 import service_account
 
 # Reuse the same service account key file as GCS
-_CREDENTIALS_PATH = os.path.join(
-    os.path.dirname(__file__), "..", "..", "keys", "gemini-hackathon.json"
+_CREDENTIALS_PATH = os.environ.get(
+    "GCP_SA_KEY_PATH",
+    os.path.join(os.path.dirname(__file__), "..", "..", "keys", "gemini-hackathon.json"),
 )
 
 

@@ -80,7 +80,7 @@ The platform uses **Gemini's multimodal capabilities** through a multi-agent pip
 | Google Cloud Storage (GCS) | Actor/theme images, scene videos |
 | Cloud Run | Backend container hosting |
 | Firebase Hosting | Frontend CDN |
-| Secret Manager | API key management (production) |
+| Secret Manager | Service account credentials (production) |
 
 ---
 

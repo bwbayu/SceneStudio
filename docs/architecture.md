@@ -10,7 +10,7 @@ SceneStudio is an AI-powered interactive FMV (Full Motion Video) storyboard gene
 - **Agent Framework**: Google ADK (`google-adk`) with `LlmAgent` + `Runner`
 - **Database**: Firestore (session state + storyboard content)
 - **Asset Storage**: Google Cloud Storage (images + videos)
-- **CI/CD**: Cloud Build → Artifact Registry → Cloud Run + Firebase Hosting
+- **Deployment**: Manual CLI — `gcloud run deploy` (Cloud Run) + `firebase deploy` (Firebase Hosting)
 
 ---
 
@@ -323,15 +323,10 @@ stateDiagram-v2
 ```mermaid
 graph LR
     subgraph Dev["Developer Workstation"]
-        Code["Source Code\n(Git Push)"]
-    end
-
-    subgraph CICD["Cloud Build (CI/CD)"]
-        Trigger["Build Trigger\n(on push to main)"]
-        BuildBE["Build Backend\nDocker Image"]
-        BuildFE["Build Frontend\nnpm run build"]
-        PushAR["Push to\nArtifact Registry"]
-        DeployFH["Deploy to\nFirebase Hosting"]
+        Code["Source Code"]
+        DockerBuild["docker build + push"]
+        GcloudDeploy["gcloud run deploy"]
+        FBDeploy["firebase deploy"]
     end
 
     subgraph GCPInfra["GCP Infrastructure"]
@@ -346,21 +341,18 @@ graph LR
         end
 
         subgraph Data["Data Layer"]
-            FS2["Firestore\nDatabase: storyverse"]
-            GCS2["Cloud Storage\nBucket: gemini-hackathon-*"]
+            FS2["Firestore\nSessions + Storyboards"]
+            GCS2["Cloud Storage\nImages + Videos"]
         end
 
         subgraph Secrets["Secret Manager"]
-            S1["GEMINI_API_KEY"]
-            S2["APIXO_API_KEY"]
-            S3["GCP Service Account\nJSON key"]
+            S3["GCP Service Account\nJSON key (file mount)"]
         end
     end
 
-    Code --> Trigger
-    Trigger --> BuildBE --> PushAR --> AR
-    AR --> Container
-    Trigger --> BuildFE --> DeployFH --> CDN
+    Code --> DockerBuild --> AR --> Container
+    Code --> FBDeploy --> CDN
+    GcloudDeploy --> Container
     Secrets --> Container
     Container --> FS2
     Container --> GCS2
@@ -368,10 +360,11 @@ graph LR
 ```
 
 **Key Infrastructure Decisions:**
-- **Cloud Run**: Serverless containers with auto-scaling, long timeout (3600s) to support Veo polling (up to 30 min per scene)
-- **Firebase Hosting**: CDN-backed static hosting with custom domain support
-- **Secret Manager**: API keys injected at runtime — never stored in container image
-- **Artifact Registry**: Private Docker registry in same GCP project for fast pulls
+- **Cloud Run**: Serverless containers, `min-instances=1` to keep in-memory pipeline state alive, `timeout=3600s` to support Veo polling
+- **Firebase Hosting**: CDN-backed static hosting for the React SPA
+- **Secret Manager**: Service account JSON mounted as a file — never stored in the container image
+- **Artifact Registry**: Private Docker registry in the same GCP project for fast pulls
+- **No CI/CD**: Deployment is manual via `gcloud` and `firebase` CLI commands
 
 ---
 

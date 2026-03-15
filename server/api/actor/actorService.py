@@ -14,7 +14,16 @@ from api.apixo.apixoService import generate_image as apixo_generate_image
 
 load_dotenv()
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+_client = None
+
+def _get_client():
+    global _client
+    if _client is None:
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY is not set")
+        _client = genai.Client(api_key=api_key)
+    return _client
 
 
 async def generate_and_save_actor_images(
@@ -54,7 +63,7 @@ async def generate_and_save_actor_images(
         if template_img:
             contents.append(template_img)
 
-        response = await client.aio.models.generate_content(
+        response = await _get_client().aio.models.generate_content(
             model="gemini-3.1-flash-image-preview",
             contents=contents,
         )

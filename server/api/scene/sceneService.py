@@ -32,7 +32,16 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+_client = None
+
+def _get_client():
+    global _client
+    if _client is None:
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY is not set")
+        _client = genai.Client(api_key=api_key)
+    return _client
 
 VEO_MODEL = "veo-3.1-fast-generate-preview"
 MAX_POLL_ITERATIONS = 180  # 18 minutes
@@ -118,7 +127,7 @@ async def _poll_operation(operation):
                     f"Veo operation timed out after {MAX_POLL_ITERATIONS * POLL_INTERVAL_SECONDS}s"
                 )
             time.sleep(POLL_INTERVAL_SECONDS)
-            op = client.operations.get(op)
+            op = _get_client().operations.get(op)
             polls += 1
         return op
 
@@ -322,7 +331,7 @@ async def generate_scene_videos(
                 number_of_videos=1,
                 reference_images=reference_images if reference_images else None,
             )
-            operation = client.models.generate_videos(
+            operation = _get_client().models.generate_videos(
                 model=VEO_MODEL,
                 source=types.GenerateVideosSource(
                     prompt=_build_segment_prompt(segment),
@@ -344,7 +353,7 @@ async def generate_scene_videos(
                 number_of_videos=1,
                 duration_seconds=8,
             )
-            operation = client.models.generate_videos(
+            operation = _get_client().models.generate_videos(
                 model=VEO_MODEL,
                 source=types.GenerateVideosSource(
                     video=previous_video,
@@ -376,7 +385,7 @@ async def generate_scene_videos(
 
         # Download video bytes from Veo server
         generated_video = operation.response.generated_videos[0]
-        client.files.download(file=generated_video.video)
+        _get_client().files.download(file=generated_video.video)
         video_bytes = generated_video.video.video_bytes
 
         # Capture segment 1 bytes in-memory for thumbnail extraction later

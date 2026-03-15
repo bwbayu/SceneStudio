@@ -34,7 +34,16 @@ import uuid, json, asyncio, os
 
 APP_NAME = "scene-studio"
 load_dotenv()
-_genai_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+_genai_client = None
+
+def _get_genai_client():
+    global _genai_client
+    if _genai_client is None:
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY is not set")
+        _genai_client = genai.Client(api_key=api_key)
+    return _genai_client
 
 class storyBoardService:
     """
@@ -129,7 +138,7 @@ class storyBoardService:
             f"Landscape orientation, 16:9 aspect ratio."
         )
 
-        response = await _genai_client.aio.models.generate_content(
+        response = await _get_genai_client().aio.models.generate_content(
             model="gemini-3.1-flash-image-preview",
             contents=[prompt],
         )

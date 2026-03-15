@@ -16,8 +16,9 @@ from google.cloud import storage
 from google.oauth2 import service_account
 
 BUCKET_NAME = os.environ.get("GCS_BUCKET_NAME")
-_CREDENTIALS_PATH = os.path.join(
-    os.path.dirname(__file__), "..", "..", "keys", "gemini-hackathon.json"
+_CREDENTIALS_PATH = os.environ.get(
+    "GCP_SA_KEY_PATH",
+    os.path.join(os.path.dirname(__file__), "..", "..", "keys", "gemini-hackathon.json"),
 )
 
 
