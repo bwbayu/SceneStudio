@@ -15,7 +15,7 @@ from functools import partial
 from google.cloud import storage
 from google.oauth2 import service_account
 
-BUCKET_NAME = "gemini-hackathon-8565416389"
+BUCKET_NAME = os.environ.get("GCS_BUCKET_NAME")
 _CREDENTIALS_PATH = os.path.join(
     os.path.dirname(__file__), "..", "..", "keys", "gemini-hackathon.json"
 )

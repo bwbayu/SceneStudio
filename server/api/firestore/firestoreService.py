@@ -30,7 +30,8 @@ class FirestoreService:
             credentials_path,
             scopes=["https://www.googleapis.com/auth/cloud-platform"],
         )
-        self._db = AsyncClient(credentials=self._credentials, database="gemini-hackathon")
+        db_name = os.environ.get("FIRESTORE_DATABASE")
+        self._db = AsyncClient(credentials=self._credentials, database=db_name)
 
     # ------------------------------------------------------------------
     # Sessions collection
