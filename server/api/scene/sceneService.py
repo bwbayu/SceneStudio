@@ -314,7 +314,7 @@ async def generate_scene_videos(
         )
 
         if segment.segment_index == 1:
-            # Text-to-video (first segment)
+            # Text-to-video (first segment) — reference images only supported here
             config = types.GenerateVideosConfig(
                 aspect_ratio="16:9",
                 resolution="720p",
@@ -324,11 +324,14 @@ async def generate_scene_videos(
             )
             operation = client.models.generate_videos(
                 model=VEO_MODEL,
-                prompt=_build_segment_prompt(segment),
+                source=types.GenerateVideosSource(
+                    prompt=_build_segment_prompt(segment),
+                ),
                 config=config,
             )
         else:
             # Extend from previous segment's video
+            # NOTE: reference_images cannot be combined with video extension
             if previous_video is None:
                 raise RuntimeError(
                     f"Cannot extend segment {segment.segment_index}: "
@@ -340,12 +343,13 @@ async def generate_scene_videos(
                 resolution="720p",
                 number_of_videos=1,
                 duration_seconds=8,
-                reference_images=reference_images if reference_images else None,
             )
             operation = client.models.generate_videos(
                 model=VEO_MODEL,
-                video=previous_video,
-                prompt=_build_segment_prompt(segment),
+                source=types.GenerateVideosSource(
+                    video=previous_video,
+                    prompt=_build_segment_prompt(segment),
+                ),
                 config=config,
             )
 
