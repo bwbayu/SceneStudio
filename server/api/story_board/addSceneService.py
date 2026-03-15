@@ -1,5 +1,5 @@
 """
-Add Scene service for Cine-Agent.
+Add Scene service for SceneStudio.
 
 Handles the pipeline for adding a single new scene to an existing storyboard:
   1. Scene Director agent — clarification Q&A loop

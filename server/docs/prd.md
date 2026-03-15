@@ -1,4 +1,4 @@
-# PRD: Cine-Agent (AI-Powered Interactive Story Platform)
+# PRD: SceneStudio (AI-Powered Interactive Story Platform)
 
 **Project Vision:** To create a "Roblox for Interactive Films" platform where AI acts as a complete film crew to transform raw scripts into professional-quality FMV (Full Motion Video) games.
 
@@ -6,7 +6,7 @@
 
 ## 1. System Summary
 
-Cine-Agent utilizes a **Multi-Agent Orchestration** architecture. The system processes user raw scripts through a reasoning loop to ensure detail completeness, then produces 5-7 branching scenes. Each scene consists of 3 video segments (~8 seconds per segment) that are seamlessly connected using the **Extend** and **Native Audio** features of **Veo 3.1**.
+SceneStudio utilizes a **Multi-Agent Orchestration** architecture. The system processes user raw scripts through a reasoning loop to ensure detail completeness, then produces 5-7 branching scenes. Each scene consists of 3 video segments (~8 seconds per segment) that are seamlessly connected using the **Extend** and **Native Audio** features of **Veo 3.1**.
 
 ---
 

@@ -23,7 +23,7 @@ export default function Navbar({ onCreateStory, showCreateStory = true }: Navbar
               <div className="absolute inset-0 rounded-lg bg-linear-to-br from-(--color-accent-primary) to-(--color-accent-cyan) opacity-40 blur-lg" />
             </div>
             <span className="text-gradient text-lg font-bold tracking-tight" style={{ fontFamily: "'Sora', sans-serif" }}>
-              StoryVerse
+              SceneStudio
             </span>
           </div>
 

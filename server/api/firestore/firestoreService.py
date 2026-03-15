@@ -1,5 +1,5 @@
 """
-Firestore service for Cine-Agent.
+Firestore service for SceneStudio.
 
 Handles persistence for sessions (pipeline state) and storyboards (published content).
 """
@@ -21,7 +21,7 @@ _CREDENTIALS_PATH = os.path.join(
 
 class FirestoreService:
     """
-    Async Firestore wrapper for Cine-Agent session and storyboard persistence.
+    Async Firestore wrapper for SceneStudio session and storyboard persistence.
     """
 
     def __init__(self, credentials_path: str = _CREDENTIALS_PATH) -> None:
