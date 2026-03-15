@@ -1,2 +1,8 @@
 .env
 /env
+__pycache__
+/adk-docs
+/static
+/temp
+/keys
+test_*

@@ -1,1 +1,11 @@
 google-genai
+google-adk
+google-cloud-storage
+google-cloud-firestore
+python-dotenv
+fastapi
+uvicorn
+google-generativeai
+Pillow
+av
+httpx
