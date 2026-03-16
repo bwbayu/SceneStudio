@@ -6,6 +6,8 @@
 
 Demo : https://www.youtube.com/watch?v=WtlUJYufBNU
 
+Web URI (Read-only, we hide all the feature related to generation features because haven't setup for input api key) : https://asas-demo.web.app
+
 **Gemini Hackathon — Creative Storyteller**
 
 ![Architecture Diagram](assets/architecture_diagram.png)
