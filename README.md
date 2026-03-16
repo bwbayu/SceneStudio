@@ -4,9 +4,15 @@
 
 > AI-powered cinematic visual novel studio — build interactive stories with AI-generated scripts, character art, and cinematic video scenes.
 
+> [!IMPORTANT]
+> **A Gemini API key is required to use generation features** (Create Story, Generate Scene).
+> After opening the app, click the **gear icon (⚙)** in the top-right navbar → enter your Gemini API key → Save.
+> Get a free key at [Google AI Studio](https://aistudio.google.com/apikey).
+> Without a key, the app runs in read-only mode (you can browse existing storyboards).
+
 Demo : https://www.youtube.com/watch?v=WtlUJYufBNU
 
-Web URI (Read-only, we hide all the feature related to generation features because haven't setup for input api key) : https://asas-demo.web.app
+Live App : https://asas-demo.web.app
 
 **Gemini Hackathon — Creative Storyteller**
 

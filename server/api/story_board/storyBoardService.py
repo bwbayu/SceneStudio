@@ -44,7 +44,7 @@ def _get_genai_client(api_key: str | None = None):
     if _genai_client is None:
         key = os.getenv("GEMINI_API_KEY")
         if not key:
-            raise ValueError("GEMINI_API_KEY is not set")
+            raise GeminiApiKeyError("No Gemini API key provided. Please set your API key in Settings.")
         _genai_client = genai.Client(api_key=key)
     return _genai_client
 
@@ -158,10 +158,14 @@ class storyBoardService:
             f"Landscape orientation, 16:9 aspect ratio."
         )
 
-        response = await _get_genai_client(api_key=api_key).aio.models.generate_content(
-            model="gemini-3.1-flash-image-preview",
-            contents=[prompt],
-        )
+        try:
+            response = await _get_genai_client(api_key=api_key).aio.models.generate_content(
+                model="gemini-3.1-flash-image-preview",
+                contents=[prompt],
+            )
+        except Exception as exc:
+            raise_if_api_key_error(exc)
+            raise
 
         for part in response.parts:
             if part.inline_data is not None:

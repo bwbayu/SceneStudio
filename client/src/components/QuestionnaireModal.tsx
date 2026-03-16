@@ -15,14 +15,17 @@ interface QuestionnaireModalProps {
 }
 
 export default function QuestionnaireModal({ isOpen, onClose, questions, onGenerate }: QuestionnaireModalProps) {
+    if (!isOpen) return null;
+    return <QuestionnaireModalInner onClose={onClose} questions={questions} onGenerate={onGenerate} />;
+}
+
+function QuestionnaireModalInner({ onClose, questions, onGenerate }: Omit<QuestionnaireModalProps, 'isOpen'>) {
     const [activeTab, setActiveTab] = useState(0);
     const [answers, setAnswers] = useState<Record<number, { selected: string[], otherInput: string }>>(
         () => Object.fromEntries(questions.map((_, idx) => [idx, { selected: [], otherInput: '' }]))
     );
 
     const allAnswered = questions.every((_, idx) => (answers[idx]?.selected ?? []).length > 0);
-
-    if (!isOpen) return null;
 
     const handleOptionToggle = (questionIdx: number, option: string, isMulti: boolean) => {
         setAnswers(prev => {
