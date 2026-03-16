@@ -11,18 +11,22 @@ from models import Theme
 from api.gcs.GCSService import gcs_service
 from api.firestore.firestoreService import firestore_service
 from api.apixo.apixoService import generate_image as apixo_generate_image
+from api.exceptions import raise_if_api_key_error
 
 load_dotenv()
 
 _client = None
 
-def _get_client():
+def _get_client(api_key: str | None = None):
     global _client
+    if api_key:
+        return genai.Client(api_key=api_key)
     if _client is None:
-        api_key = os.getenv("GEMINI_API_KEY")
-        if not api_key:
-            raise ValueError("GEMINI_API_KEY is not set")
-        _client = genai.Client(api_key=api_key)
+        key = os.getenv("GEMINI_API_KEY")
+        if not key:
+            from api.exceptions import GeminiApiKeyError
+            raise GeminiApiKeyError("No Gemini API key provided. Please set your API key in Settings.")
+        _client = genai.Client(api_key=key)
     return _client
 
 
@@ -31,6 +35,7 @@ async def generate_and_save_theme_images(
     story_id: str,
     themes: list[Theme],
     template_image_path: Optional[Path] = None,
+    gemini_api_key: str | None = None,
 ) -> list[Theme]:
     """
     Generate theme reference images using Gemini Flash Image,
@@ -62,10 +67,14 @@ async def generate_and_save_theme_images(
         if template_img:
             contents.append(template_img)
 
-        response = await _get_client().aio.models.generate_content(
-            model="gemini-3.1-flash-image-preview",
-            contents=contents,
-        )
+        try:
+            response = await _get_client(api_key=gemini_api_key).aio.models.generate_content(
+                model="gemini-3.1-flash-image-preview",
+                contents=contents,
+            )
+        except Exception as exc:
+            raise_if_api_key_error(exc)
+            raise
 
         for part in response.parts:
             if part.inline_data is not None:

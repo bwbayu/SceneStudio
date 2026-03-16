@@ -114,8 +114,8 @@ function Connection({ fromId, toId, isActive, containerRef }: { fromId: string, 
   );
 }
 
-function SceneNode({ scene, isActive, isGenerating, hasVideo, onClick, onSelect, onGenerate }: {
-  scene: ApiScene, isActive: boolean, isGenerating: boolean, hasVideo: boolean,
+function SceneNode({ scene, isActive, isGenerating, hasVideo, showGenerateFeatures, onClick, onSelect, onGenerate }: {
+  scene: ApiScene, isActive: boolean, isGenerating: boolean, hasVideo: boolean, showGenerateFeatures: boolean,
   onClick: () => void, onSelect: () => void, onGenerate: () => void
 }) {
   return (
@@ -164,7 +164,7 @@ function SceneNode({ scene, isActive, isGenerating, hasVideo, onClick, onSelect,
           )}
 
           {/* Generate button — show when no video and not generating (dev only) */}
-          {import.meta.env.DEV && !isGenerating && !hasVideo && (
+          {showGenerateFeatures && !isGenerating && !hasVideo && (
             <button
               onClick={(e) => { e.stopPropagation(); onGenerate(); }}
               className="absolute right-2 top-2 z-10 rounded-lg bg-black/70 px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-white opacity-0 transition-all group-hover/thumb:opacity-100 hover:bg-(--color-accent-primary) hover:text-black backdrop-blur-sm"
@@ -192,6 +192,7 @@ function SceneNode({ scene, isActive, isGenerating, hasVideo, onClick, onSelect,
 }
 
 export default function SceneEditor() {
+  const showGenerateFeatures = Boolean(localStorage.getItem('gemini_api_key')) || import.meta.env.DEV;
   const { storyId = null } = useParams<{ storyId: string }>();
   const navigate = useNavigate();
   const { data: storyboard, isLoading: isLoadingStoryboard } = useStoryboard(storyId);
@@ -272,6 +273,7 @@ export default function SceneEditor() {
     }
   );
   const [generatingSceneIds, setGeneratingSceneIds] = useState<Set<string>>(new Set());
+  const [sceneGenError, setSceneGenError] = useState<string | null>(null);
 
   // Restore polling on page load: check scenes without video_url
   useEffect(() => {
@@ -291,7 +293,7 @@ export default function SceneEditor() {
 
   // Scene generation polling — poll the first generating scene
   const pollingSceneId = generatingSceneIds.size > 0 ? Array.from(generatingSceneIds)[0] : null;
-  const handleSceneGenChange = useCallback((data: { status: string }) => {
+  const handleSceneGenChange = useCallback((data: { status: string; message?: string }) => {
     // On error: remove immediately (no video will ever come)
     // On complete: storyboard invalidation triggers refetch; cleanup useEffect handles removal
     if (data.status === 'error') {
@@ -300,6 +302,12 @@ export default function SceneEditor() {
         if (pollingSceneId) next.delete(pollingSceneId);
         return next;
       });
+      const msg = data.message || 'Scene generation failed.';
+      if (msg.toLowerCase().includes('api key') || msg.toLowerCase().includes('gemini_api_key')) {
+        window.dispatchEvent(new CustomEvent('gemini-api-key-error', { detail: msg }));
+      } else {
+        setSceneGenError(msg);
+      }
     }
   }, [pollingSceneId]);
 
@@ -480,6 +488,18 @@ export default function SceneEditor() {
   return (
     <div className="relative flex h-[calc(100vh-64px)] w-full overflow-hidden bg-bg-primary">
 
+      {/* Scene generation error banner */}
+      {sceneGenError && (
+        <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between bg-red-900/90 px-6 py-3 text-sm text-red-100 backdrop-blur">
+          <span>{sceneGenError}</span>
+          <button onClick={() => setSceneGenError(null)} className="ml-4 text-red-300 hover:text-white transition-colors">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div
@@ -628,7 +648,7 @@ export default function SceneEditor() {
               <div className="overflow-hidden">
                 <div className="h-full flex flex-col p-4 pt-0">
                   <div className="mb-4 flex items-center justify-end px-1 gap-2 pt-4">
-                    {import.meta.env.DEV && (
+                    {showGenerateFeatures && (
                       <button
                         onClick={() => setIsAddSceneModalOpen(true)}
                         title="Add Scene"
@@ -759,6 +779,7 @@ export default function SceneEditor() {
                     isActive={activeSceneId === scene.scene_id}
                     isGenerating={generatingSceneIds.has(scene.scene_id) && !scene.video_url}
                     hasVideo={!!scene.video_url}
+                    showGenerateFeatures={showGenerateFeatures}
                     onClick={() => { handleSelectScene(scene.scene_id); if (scene.video_url) setIsPreviewOpen(true); }}
                     onSelect={() => handleSelectScene(scene.scene_id)}
                     onGenerate={() => handleOpenProviderModal(scene.scene_id)}

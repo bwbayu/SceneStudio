@@ -27,6 +27,7 @@ from models import Scene, Segment, Actor, Theme
 from api.gcs.GCSService import gcs_service
 from api.firestore.firestoreService import firestore_service
 from api.apixo.apixoService import generate_video_reference, generate_video_text
+from api.exceptions import raise_if_api_key_error
 
 load_dotenv()
 
@@ -34,13 +35,16 @@ logger = logging.getLogger(__name__)
 
 _client = None
 
-def _get_client():
+def _get_client(api_key: str | None = None):
     global _client
+    if api_key:
+        return genai.Client(api_key=api_key)
     if _client is None:
-        api_key = os.getenv("GEMINI_API_KEY")
-        if not api_key:
-            raise ValueError("GEMINI_API_KEY is not set")
-        _client = genai.Client(api_key=api_key)
+        key = os.getenv("GEMINI_API_KEY")
+        if not key:
+            from api.exceptions import GeminiApiKeyError
+            raise GeminiApiKeyError("No Gemini API key provided. Please set your API key in Settings.")
+        _client = genai.Client(api_key=key)
     return _client
 
 VEO_MODEL = "veo-3.1-fast-generate-preview"
@@ -115,7 +119,7 @@ async def _build_reference_images(
     return references
 
 
-async def _poll_operation(operation):
+async def _poll_operation(operation, api_key: str | None = None):
     """Poll a Veo operation until done. Runs blocking poll in executor."""
     loop = asyncio.get_running_loop()
 
@@ -127,7 +131,7 @@ async def _poll_operation(operation):
                     f"Veo operation timed out after {MAX_POLL_ITERATIONS * POLL_INTERVAL_SECONDS}s"
                 )
             time.sleep(POLL_INTERVAL_SECONDS)
-            op = _get_client().operations.get(op)
+            op = _get_client(api_key=api_key).operations.get(op)
             polls += 1
         return op
 
@@ -299,6 +303,7 @@ async def generate_scene_videos(
     scene: Scene,
     actors: list[Actor],
     themes: list[Theme],
+    gemini_api_key: str | None = None,
 ) -> None:
     """
     Generate videos for all 3 segments of a scene sequentially.
@@ -331,13 +336,17 @@ async def generate_scene_videos(
                 number_of_videos=1,
                 reference_images=reference_images if reference_images else None,
             )
-            operation = _get_client().models.generate_videos(
-                model=VEO_MODEL,
-                source=types.GenerateVideosSource(
-                    prompt=_build_segment_prompt(segment),
-                ),
-                config=config,
-            )
+            try:
+                operation = _get_client(api_key=gemini_api_key).models.generate_videos(
+                    model=VEO_MODEL,
+                    source=types.GenerateVideosSource(
+                        prompt=_build_segment_prompt(segment),
+                    ),
+                    config=config,
+                )
+            except Exception as exc:
+                raise_if_api_key_error(exc)
+                raise
         else:
             # Extend from previous segment's video
             # NOTE: reference_images cannot be combined with video extension
@@ -353,17 +362,21 @@ async def generate_scene_videos(
                 number_of_videos=1,
                 duration_seconds=8,
             )
-            operation = _get_client().models.generate_videos(
-                model=VEO_MODEL,
-                source=types.GenerateVideosSource(
-                    video=previous_video,
-                    prompt=_build_segment_prompt(segment),
-                ),
-                config=config,
-            )
+            try:
+                operation = _get_client(api_key=gemini_api_key).models.generate_videos(
+                    model=VEO_MODEL,
+                    source=types.GenerateVideosSource(
+                        video=previous_video,
+                        prompt=_build_segment_prompt(segment),
+                    ),
+                    config=config,
+                )
+            except Exception as exc:
+                raise_if_api_key_error(exc)
+                raise
 
         # Poll until done
-        operation = await _poll_operation(operation)
+        operation = await _poll_operation(operation, api_key=gemini_api_key)
 
         if not operation.response or not operation.response.generated_videos:
             rai_count = (
@@ -385,7 +398,7 @@ async def generate_scene_videos(
 
         # Download video bytes from Veo server
         generated_video = operation.response.generated_videos[0]
-        _get_client().files.download(file=generated_video.video)
+        _get_client(api_key=gemini_api_key).files.download(file=generated_video.video)
         video_bytes = generated_video.video.video_bytes
 
         # Capture segment 1 bytes in-memory for thumbnail extraction later

@@ -14,6 +14,7 @@ from api.story_board.storyBoardService import storyBoardService
 from api.actor.actorService import generate_and_save_actor_images
 from api.theme.themeService import generate_and_save_theme_images
 from api.firestore.firestoreService import firestore_service
+from api.exceptions import GeminiApiKeyError
 from api.utils import _to_response
 
 
@@ -33,6 +34,7 @@ class PipelineService:
         self,
         session: SessionState,
         pipeline_tasks: dict[str, asyncio.Task],
+        gemini_api_key: str | None = None,
     ) -> SessionResponse:
         """
         Run the director agent Q&A loop.
@@ -45,8 +47,15 @@ class PipelineService:
         # Phase 1: Director agent
         try:
             director_output = await self._storyboard_service._run_director_agent(
-                session.script, session.qa_history
+                session.script, session.qa_history, api_key=gemini_api_key
             )
+        except GeminiApiKeyError as e:
+            session.status = "error"
+            session.error = f"api_key_error: {e}"
+            await firestore_service.update_session_status(
+                session.session_id, "error", error=session.error
+            )
+            return _to_response(session)
         except Exception as e:
             session.status = "error"
             session.error = f"Director agent failed: {e}"
@@ -87,7 +96,7 @@ class PipelineService:
             """
             try:
                 # ── Phase 1: Storyboard assembly ──────────────────────────────
-                storyboard = await self._storyboard_service._run_multi_agent(session, analysis)
+                storyboard = await self._storyboard_service._run_multi_agent(session, analysis, api_key=gemini_api_key)
                 session.storyboard = storyboard
                 # _run_multi_agent leaves session.status as "processing_assets"
                 # and storyboard.status as "generating" in Firestore.
@@ -108,11 +117,13 @@ class PipelineService:
                         session_id=session.session_id,
                         story_id=storyboard.story_id,
                         actors=storyboard.actors,
+                        gemini_api_key=gemini_api_key,
                     ),
                     generate_and_save_theme_images(
                         session_id=session.session_id,
                         story_id=storyboard.story_id,
                         themes=storyboard.themes,
+                        gemini_api_key=gemini_api_key,
                     ),
                 )
                 # After gather, storyboard.actors[*].anchor_image_gcs_uri and
@@ -127,6 +138,12 @@ class PipelineService:
                     storyboard.story_id, "storyboard_complete"
                 )
 
+            except GeminiApiKeyError as e:
+                session.status = "error"
+                session.error = f"api_key_error: {e}"
+                await firestore_service.update_session_status(
+                    session.session_id, "error", error=session.error
+                )
             except Exception as e:
                 session.status = "error"
                 session.error = f"Full pipeline failed: {e}"
