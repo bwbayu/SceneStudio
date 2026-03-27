@@ -8,6 +8,8 @@
 > **A Gemini API key is required to use generation features** (Create Story, Generate Scene).
 > After opening the app, click the **gear icon (⚙)** in the top-right navbar → enter your Gemini API key → Save.
 > Get api key at [Google AI Studio](https://aistudio.google.com/apikey).
+> The key is stored in the browser and forwarded to this backend in the `X-Gemini-Api-Key` header for generation requests.
+> For safety, we recommend revoking this key in Google AI Studio after using this app.
 > Without a key, the app runs in read-only mode (you can browse existing storyboards).
 
 Demo : https://www.youtube.com/watch?v=WtlUJYufBNU

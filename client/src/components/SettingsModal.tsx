@@ -93,8 +93,11 @@ function SettingsModalInner({ onClose, onSave }: Omit<SettingsModalProps, 'isOpe
 
         {/* Modal Content */}
         <div className="px-8 pb-8 pt-20">
-          <p className="mb-6 text-xs text-text-muted leading-relaxed">
-            Enter your Gemini API key to unlock story and video generation. Your key is stored locally in your browser and never sent to our servers.
+          <p className="mb-3 text-xs text-text-muted leading-relaxed">
+            Enter your Gemini API key to unlock story and video generation. The key is stored in your browser and sent to this app backend as <code className="font-mono">X-Gemini-Api-Key</code> for generation requests.
+          </p>
+          <p className="mb-6 text-xs text-amber-300/90 leading-relaxed">
+            For safety, we recommend revoking this key in Google AI Studio after using this app.
           </p>
 
           {/* Gemini API Key Input */}
